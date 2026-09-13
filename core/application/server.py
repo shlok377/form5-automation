@@ -104,6 +104,9 @@ async def handle_preflight_upload(request):
     report["filename"] = filename
     report["file_size"] = len(content_bytes)
     report["converted_from_xlsx"] = is_xlsx
+    
+    existing_pdfs = [f for f in os.listdir(OUTPUT_DIR) if f.endswith(".pdf") and not f.startswith(".")] if os.path.exists(OUTPUT_DIR) else []
+    report["existing_pdf_count"] = len(existing_pdfs)
     return web.json_response(report)
 
 async def handle_confirm_csv(request):

@@ -141,6 +141,7 @@ class PipelineManager:
 
     def get_status(self):
         with self.lock:
+            existing_pdfs = len([f for f in os.listdir(self.output_dir) if f.endswith(".pdf") and not f.startswith(".")]) if os.path.exists(self.output_dir) else 0
             return {
                 "state": self.state,
                 "total_records": self.total_records,
@@ -150,6 +151,7 @@ class PipelineManager:
                 "pdf_generated": self.pdf_generated,
                 "pdf_skipped": self.pdf_skipped,
                 "pdf_total_ready": self.pdf_generated + self.pdf_skipped,
+                "existing_pdf_count": existing_pdfs,
                 "failed_count": len(self.failed_records),
                 "failed_records": list(self.failed_records),
                 "recent_logs": list(self.recent_logs[-30:])

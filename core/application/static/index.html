@@ -100,6 +100,37 @@
 
   <!-- SCREEN 1: UPLOAD & PREFLIGHT BENTO BOX -->
   <div id="uploadBox" class="w-full max-w-xl transition-all duration-500 ease-out space-y-6">
+
+    <!-- Alert: Previous Batch Detected in Output -->
+    <div id="existingBatchNotice" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-folder-open"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-sand-900">Previous Batch Outputs Detected</p>
+          <p id="existingBatchText" class="text-[11px] text-sand-800/70">PDF reports exist from an earlier session in output/.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a 
+          href="/api/download-all" 
+          download 
+          class="bg-white hover:bg-amber-100 border border-amber-200 text-sand-900 font-bold text-[11px] px-3 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-file-zipper text-xs"></i>
+          <span>Backup (.ZIP)</span>
+        </a>
+        <button 
+          onclick="openNewBatchModal(false)" 
+          class="bg-sand-900 hover:bg-black text-white font-bold text-[11px] px-3 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-trash-can text-[10px]"></i>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+
     <div 
       id="dropZone"
       onclick="document.getElementById('fileInput').click()"
@@ -129,7 +160,8 @@
 
       <div id="preflightErrors" class="hidden text-xs text-clay-800 bg-clay-100 border border-clay-200 p-3 rounded-xl space-y-1"></div>
 
-      <div class="flex items-center gap-3 pt-2">
+      <!-- Standard Start Action (when output/ is clean) -->
+      <div id="normalStartAction" class="flex items-center gap-3 pt-2">
         <button 
           id="confirmStartBtn"
           onclick="confirmAndStartPipeline()"
@@ -138,6 +170,41 @@
           <i class="fa-solid fa-play text-xs"></i>
           <span>Confirm & Start Pipeline</span>
         </button>
+      </div>
+
+      <!-- Actions when previous batch outputs are detected -->
+      <div id="previousBatchStartActions" class="hidden space-y-3 pt-2">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
+          <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xs mt-0.5"></i>
+          <div class="text-xs text-sand-800">
+            <span class="font-bold">Previous Batch Detected:</span>
+            <span id="preflightBatchNoticeText">Found existing PDF reports in output/. Starting this new batch will clear them to keep records isolated.</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Option 1: Backup & Start -->
+          <button 
+            type="button"
+            onclick="startBatchFromCard(true)"
+            id="backupAndStartCardBtn"
+            class="bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-file-zipper text-sm"></i>
+            <span>Download Backup (.ZIP) & Start</span>
+          </button>
+
+          <!-- Option 2: Already Backed Up, Start -->
+          <button 
+            type="button"
+            onclick="startBatchFromCard(false)"
+            id="clearAndStartCardBtn"
+            class="bg-sand-100 hover:bg-clay-100 hover:text-clay-800 text-sand-800 border border-sand-200 font-bold text-xs py-3 px-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-trash-can text-xs"></i>
+            <span>Already Backed Up, Start</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -420,8 +487,8 @@
 
       <!-- Title & Explanation -->
       <div class="space-y-1.5">
-        <h2 class="text-2xl font-bold tracking-tight text-sand-900">Start a New Batch</h2>
-        <p class="text-xs text-sand-800/70 leading-relaxed">
+        <h2 id="newBatchModalTitle" class="text-2xl font-bold tracking-tight text-sand-900">Start a New Batch</h2>
+        <p id="newBatchModalDesc" class="text-xs text-sand-800/70 leading-relaxed">
           Starting a new batch clears previous employee PDFs and records to ensure company datasets never mix.
         </p>
       </div>
@@ -435,7 +502,7 @@
           class="w-full bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-file-zipper text-sm"></i>
-          <span>Download Backup (.ZIP) & Clear</span>
+          <span id="newBatchBackupBtnText">Download Backup (.ZIP) & Clear</span>
         </button>
 
         <!-- Option 2: Already Backed Up, Clear -->
@@ -445,15 +512,16 @@
           class="w-full bg-sand-50 hover:bg-clay-50 hover:text-clay-800 text-sand-800 border border-sand-200 hover:border-clay-200 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-trash-can text-xs"></i>
-          <span>Already Backed Up, Clear</span>
+          <span id="newBatchClearBtnText">Already Backed Up, Clear</span>
         </button>
 
         <!-- Option 3: Cancel -->
         <button 
+          id="newBatchCancelBtn"
           onclick="closeNewBatchModal()" 
           class="w-full text-sand-800/50 hover:text-sand-900 font-semibold text-xs py-1.5 transition-colors"
         >
-          Cancel (Keep Records)
+          Cancel
         </button>
       </div>
 
@@ -510,6 +578,76 @@
     let startTime = null;
     let allRecords = [];
     let completedModalShown = false;
+    let existingPdfCount = 0;
+    let pendingStartPipeline = false;
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/pipeline/status");
+        const st = await res.json();
+        updateExistingBatchNotice(st.existing_pdf_count || 0);
+      } catch (e) {
+        console.warn("Status check failed", e);
+      }
+    });
+
+    function updateExistingBatchNotice(count) {
+      existingPdfCount = count || 0;
+      const notice = document.getElementById("existingBatchNotice");
+      const text = document.getElementById("existingBatchText");
+      const normalAction = document.getElementById("normalStartAction");
+      const prevActions = document.getElementById("previousBatchStartActions");
+      const preflightNoticeText = document.getElementById("preflightBatchNoticeText");
+
+      if (notice && text) {
+        if (existingPdfCount > 0) {
+          notice.classList.remove("hidden");
+          text.textContent = `${existingPdfCount} PDF reports from an earlier session are in the output folder.`;
+        } else {
+          notice.classList.add("hidden");
+        }
+      }
+
+      if (normalAction && prevActions) {
+        if (existingPdfCount > 0) {
+          normalAction.classList.add("hidden");
+          prevActions.classList.remove("hidden");
+          if (preflightNoticeText) {
+            preflightNoticeText.textContent = `Found ${existingPdfCount} existing PDF report(s) in output/. Starting this new batch will clear them to keep records isolated.`;
+          }
+        } else {
+          normalAction.classList.remove("hidden");
+          prevActions.classList.add("hidden");
+        }
+      }
+    }
+
+    async function startBatchFromCard(downloadBackup) {
+      pendingStartPipeline = true;
+      const cardBackupBtn = document.getElementById("backupAndStartCardBtn");
+      const cardClearBtn = document.getElementById("clearAndStartCardBtn");
+      if (cardBackupBtn) cardBackupBtn.disabled = true;
+      if (cardClearBtn) cardClearBtn.disabled = true;
+
+      if (downloadBackup && cardBackupBtn) {
+        cardBackupBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i><span>Downloading Backup...</span>';
+      } else if (!downloadBackup && cardClearBtn) {
+        cardClearBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Starting...</span>';
+      }
+
+      try {
+        await confirmNewBatch(downloadBackup);
+      } finally {
+        if (cardBackupBtn) {
+          cardBackupBtn.disabled = false;
+          cardBackupBtn.innerHTML = '<i class="fa-solid fa-file-zipper text-sm"></i><span>Download Backup (.ZIP) & Start</span>';
+        }
+        if (cardClearBtn) {
+          cardClearBtn.disabled = false;
+          cardClearBtn.innerHTML = '<i class="fa-solid fa-trash-can text-xs"></i><span>Already Backed Up, Start</span>';
+        }
+      }
+    }
 
     const dropZone = document.getElementById("dropZone");
     ['dragenter', 'dragover'].forEach(name => {
@@ -573,9 +711,21 @@
         btn.disabled = true;
         btn.classList.add("opacity-50", "cursor-not-allowed");
       }
+
+      if (typeof report.existing_pdf_count === "number") {
+        updateExistingBatchNotice(report.existing_pdf_count);
+      }
     }
 
     async function confirmAndStartPipeline() {
+      if (existingPdfCount > 0) {
+        openNewBatchModal(true);
+        return;
+      }
+      executeConfirmAndStart();
+    }
+
+    async function executeConfirmAndStart() {
       try {
         const confirmRes = await fetch("/api/confirm-csv", { method: "POST" });
         const confirmData = await confirmRes.json();
@@ -622,10 +772,29 @@
       loadRecordsModal();
     }
 
-    function openNewBatchModal() {
+    function openNewBatchModal(isStartingPipeline = false) {
+      pendingStartPipeline = isStartingPipeline;
       closeCompletedModal();
+
       const modal = document.getElementById("newBatchModal");
       const card = document.getElementById("newBatchCard");
+      const title = document.getElementById("newBatchModalTitle");
+      const desc = document.getElementById("newBatchModalDesc");
+      const backupText = document.getElementById("newBatchBackupBtnText");
+      const clearText = document.getElementById("newBatchClearBtnText");
+
+      if (isStartingPipeline) {
+        title.textContent = "Previous Batch Detected";
+        desc.textContent = `Found ${existingPdfCount} existing PDF report(s) in output/. Starting this new batch will clear them to ensure company datasets never mix.`;
+        backupText.textContent = "Download Backup (.ZIP) & Proceed";
+        clearText.textContent = "Already Backed Up, Proceed";
+      } else {
+        title.textContent = "Start a New Batch";
+        desc.textContent = "Starting a new batch clears previous employee PDFs and records to ensure company datasets never mix.";
+        backupText.textContent = "Download Backup (.ZIP) & Clear";
+        clearText.textContent = "Already Backed Up, Clear";
+      }
+
       modal.classList.remove("hidden");
       requestAnimationFrame(() => {
         modal.classList.remove("opacity-0");
@@ -651,11 +820,11 @@
       const backupBtn = document.getElementById("backupAndResetBtn");
       const clearBtn = document.getElementById("clearOnlyBtn");
       
-      backupBtn.disabled = true;
-      clearBtn.disabled = true;
+      if (backupBtn) backupBtn.disabled = true;
+      if (clearBtn) clearBtn.disabled = true;
       
       if (downloadBackup) {
-        backupBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i><span>Downloading Backup...</span>';
+        if (backupBtn) backupBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i><span>Downloading Backup...</span>';
         const a = document.createElement("a");
         a.href = "/api/download-all";
         a.download = "FORM-5_Batch_Reports.zip";
@@ -665,25 +834,35 @@
         // Wait 1.2s to allow browser download stream initialization
         await new Promise(r => setTimeout(r, 1200));
       } else {
-        clearBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Clearing...</span>';
+        if (clearBtn) clearBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Clearing...</span>';
       }
 
       try {
         const res = await fetch("/api/workspace/reset", { method: "POST" });
         const data = await res.json();
         if (data.success) {
+          updateExistingBatchNotice(0);
           closeNewBatchModal();
-          resetUIState();
+          if (pendingStartPipeline) {
+            pendingStartPipeline = false;
+            await executeConfirmAndStart();
+          } else {
+            resetUIState();
+          }
         } else {
           alert("Could not reset workspace: " + (data.message || "Unknown error"));
         }
       } catch (err) {
         alert("Error during workspace reset: " + err.message);
       } finally {
-        backupBtn.disabled = false;
-        clearBtn.disabled = false;
-        backupBtn.innerHTML = '<i class="fa-solid fa-file-zipper text-sm"></i><span>Download Backup (.ZIP) & Clear</span>';
-        clearBtn.innerHTML = '<i class="fa-solid fa-trash-can text-xs"></i><span>Already Backed Up, Clear</span>';
+        if (backupBtn) {
+          backupBtn.disabled = false;
+          backupBtn.innerHTML = '<i class="fa-solid fa-file-zipper text-sm"></i><span id="newBatchBackupBtnText">Download Backup (.ZIP) & Clear</span>';
+        }
+        if (clearBtn) {
+          clearBtn.disabled = false;
+          clearBtn.innerHTML = '<i class="fa-solid fa-trash-can text-xs"></i><span id="newBatchClearBtnText">Already Backed Up, Clear</span>';
+        }
       }
     }
 
