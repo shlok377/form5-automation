@@ -239,6 +239,8 @@ async def handle_sse_events(request):
     finally:
         pipeline_manager.remove_listener(listener)
 
+    return response
+
 async def handle_workspace_reset(request):
     """
     Purges current batch outputs and resets pipeline to clean state.
