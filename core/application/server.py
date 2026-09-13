@@ -136,7 +136,8 @@ async def handle_pipeline_start(request):
         data = {}
 
     force = bool(data.get("force", False))
-    workers = int(data.get("workers", 4))
+    workers = int(data.get("workers", 2))
+    workers = max(1, min(3, workers))
 
     success, msg = pipeline_manager.start(force=force, num_workers=workers)
     return web.json_response({"success": success, "message": msg})

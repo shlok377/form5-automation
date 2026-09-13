@@ -14,7 +14,7 @@ if not exist "%PYTHON_EXEC%" (
 
 if "%1"=="--cli" (
     echo Starting FORM-5 Batch Generation Pipeline via CLI...
-    "%PYTHON_EXEC%" core\application\pipeline.py --workers 8 %*
+    "%PYTHON_EXEC%" core\application\pipeline.py --workers 2 %*
     pause
     exit /b 0
 )

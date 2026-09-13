@@ -950,7 +950,7 @@
       await fetch("/api/pipeline/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force: force, workers: 8 })
+        body: JSON.stringify({ force: force, workers: 2 })
       });
 
       connectSSE();

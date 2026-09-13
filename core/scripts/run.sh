@@ -25,7 +25,7 @@ cd "${CORE_DIR}"
 if [ "$1" = "--cli" ] || [ "$1" = "-c" ] || [ "$1" = "--batch" ]; then
     shift
     echo "Starting FORM-5 Batch Generation Pipeline via CLI..."
-    exec "${PYTHON_BIN}" application/pipeline.py --workers 8 "$@"
+    exec "${PYTHON_BIN}" application/pipeline.py --workers 2 "$@"
 elif [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
     exec "${PYTHON_BIN}" application/pipeline.py --status
 elif [ "$1" = "--help" ] || [ "$1" = "-h" ]; then

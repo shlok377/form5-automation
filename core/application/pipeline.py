@@ -207,7 +207,7 @@ class PipelineManager:
             self.emit_progress()
             return True
 
-    def start(self, force=False, num_workers=4):
+    def start(self, force=False, num_workers=2):
         with self.lock:
             if self.state == "running":
                 return False, "Pipeline is already running."
@@ -222,6 +222,7 @@ class PipelineManager:
                 self.failed_records = []
                 self._save_failures()
 
+        num_workers = max(1, min(3, int(num_workers)))
         threading.Thread(target=self._run_pipeline, args=(force, num_workers), daemon=True).start()
         return True, "Pipeline started."
 
@@ -236,6 +237,7 @@ class PipelineManager:
         return True, "Stop requested."
 
     def _run_pipeline(self, force, num_workers):
+        num_workers = max(1, min(3, int(num_workers)))
         self.log(f"Starting pipeline (force={force}, workers={num_workers})...")
         
         if not os.path.exists(self.data_csv):
@@ -297,7 +299,7 @@ class PipelineManager:
             except queue.Empty:
                 break
 
-        # Start Agent 2 (PDF Workers)
+        # Start Agent 2 (PDF Workers) with staggered thread initialization
         worker_threads = []
         for worker_id in range(num_workers):
             t = threading.Thread(
@@ -307,6 +309,7 @@ class PipelineManager:
             )
             t.start()
             worker_threads.append(t)
+            time.sleep(0.15)
 
         # Run Agent 1 (JSON Extractor)
         self._extractor_producer_loop(rows, mapping, force)
@@ -334,8 +337,18 @@ class PipelineManager:
         self.emit_progress()
 
     def _extractor_producer_loop(self, rows, mapping, force):
-        """Agent 1: Row extraction & atomic JSON generation"""
+        """Agent 1: Row extraction & atomic JSON generation in batches of 5 with 2s pause"""
+        BATCH_SIZE = 5
+        PAUSE_SECONDS = 2.0
+
         for i, row in enumerate(rows, start=1):
+            if self.stop_requested:
+                break
+
+            # Natural queue backpressure: pause if queue has >= 10 items until Agent 2 catches up
+            while self.work_queue.qsize() >= 10 and not self.stop_requested:
+                time.sleep(0.2)
+
             if self.stop_requested:
                 break
 
@@ -358,54 +371,58 @@ class PipelineManager:
             if already_done:
                 with self.lock:
                     self.json_skipped += 1
-                # Enqueue for PDF generation check
                 self.work_queue.put(final_json_path)
-                if i % 20 == 0 or i == len(rows):
-                    self.emit_progress()
-                continue
+            else:
+                # Generate JSON with row-level error isolation
+                try:
+                    if not any(cell.strip() for cell in row):
+                        raise ValueError(f"Row {i} is completely empty.")
+                    if len(row) < 3 or (not row[0].strip() and not row[2].strip()):
+                        raise ValueError(f"Row {i} is missing both Employee Code and Employee Name.")
 
-            # Generate JSON with row-level error isolation
-            try:
-                if not any(cell.strip() for cell in row):
-                    raise ValueError(f"Row {i} is completely empty.")
-                if len(row) < 3 or (not row[0].strip() and not row[2].strip()):
-                    raise ValueError(f"Row {i} is missing both Employee Code and Employee Name.")
+                    _, emp_data = build_employee_json(row, i, mapping)
+                    
+                    # Atomic write: write to .tmp then replace
+                    tmp_path = os.path.join(self.temp_json_dir, f".{json_filename}.tmp")
+                    with open(tmp_path, "w", encoding="utf-8") as out:
+                        json.dump(emp_data, out, indent=2, ensure_ascii=False)
+                    os.replace(tmp_path, final_json_path)
 
-                _, emp_data = build_employee_json(row, i, mapping)
-                
-                # Atomic write: write to .tmp then replace
-                tmp_path = os.path.join(self.temp_json_dir, f".{json_filename}.tmp")
-                with open(tmp_path, "w", encoding="utf-8") as out:
-                    json.dump(emp_data, out, indent=2, ensure_ascii=False)
-                os.replace(tmp_path, final_json_path)
+                    with self.lock:
+                        self.json_generated += 1
+                        if any(f.get("code") == code for f in self.failed_records):
+                            self.failed_records = [f for f in self.failed_records if f.get("code") != code]
+                            self._save_failures()
 
-                with self.lock:
-                    self.json_generated += 1
-                    if any(f.get("code") == code for f in self.failed_records):
+                    self.work_queue.put(final_json_path)
+
+                except Exception as e:
+                    err_msg = f"Row {i} ({code} - {name}): {str(e)}"
+                    self.log(f"[Agent 1 Error] {err_msg}", level="error")
+                    with self.lock:
                         self.failed_records = [f for f in self.failed_records if f.get("code") != code]
+                        self.failed_records.append({
+                            "row": i,
+                            "code": code,
+                            "name": name,
+                            "stage": "json_extraction",
+                            "error": str(e),
+                            "time": time.strftime("%H:%M:%S")
+                        })
                         self._save_failures()
 
-                self.work_queue.put(final_json_path)
-
-                if i % 10 == 0 or i == len(rows):
-                    self.log(f"[Agent 1] Extracted {self.json_generated + self.json_skipped}/{self.total_records} records.")
-                    self.emit_progress()
-
-            except Exception as e:
-                err_msg = f"Row {i} ({code} - {name}): {str(e)}"
-                self.log(f"[Agent 1 Error] {err_msg}", level="error")
-                with self.lock:
-                    # Remove any previous error for this code and append fresh
-                    self.failed_records = [f for f in self.failed_records if f.get("code") != code]
-                    self.failed_records.append({
-                        "row": i,
-                        "code": code,
-                        "name": name,
-                        "stage": "json_extraction",
-                        "error": str(e),
-                        "time": time.strftime("%H:%M:%S")
-                    })
-                    self._save_failures()
+            # Pacing & Progress emission: pause 2s every 5 records to allow Agent 2 steady throughput
+            total_ready = self.json_generated + self.json_skipped
+            if i % BATCH_SIZE == 0 and i < len(rows):
+                self.log(f"[Agent 1] Extracted {total_ready}/{self.total_records} records. Pausing {int(PAUSE_SECONDS)}s...")
+                self.emit_progress()
+                # Responsive pause in 0.1s slices so stop requests are handled immediately
+                for _ in range(int(PAUSE_SECONDS / 0.1)):
+                    if self.stop_requested:
+                        break
+                    time.sleep(0.1)
+            elif i == len(rows):
+                self.log(f"[Agent 1] Completed extracting all {total_ready}/{self.total_records} records.")
                 self.emit_progress()
 
     def _pdf_worker_loop(self, worker_id, template_str, force):
@@ -444,12 +461,24 @@ class PipelineManager:
 
                 tmp_pdf_path = os.path.join(self.output_dir, f".{pdf_filename}.tmp")
 
+                # Worker launch jitter to prevent simultaneous CPU spikes across threads
+                time.sleep(0.1 * (worker_id + 1))
+
                 cmd = [
                     self.chromium_path,
                     "--headless",
                     "--disable-gpu",
                     "--no-sandbox",
                     "--disable-dev-shm-usage",
+                    "--disable-extensions",
+                    "--disable-software-rasterizer",
+                    "--disable-background-networking",
+                    "--disable-sync",
+                    "--disable-default-apps",
+                    "--hide-scrollbars",
+                    "--metrics-recording-only",
+                    "--mute-audio",
+                    "--no-first-run",
                     "--no-pdf-header-footer",
                     f"--print-to-pdf={tmp_pdf_path}",
                     tmp_html_path
@@ -467,7 +496,7 @@ class PipelineManager:
                     self.pdf_generated += 1
 
                 total_pdf = self.pdf_generated + self.pdf_skipped
-                if total_pdf % 10 == 0 or total_pdf == self.total_records:
+                if total_pdf % 5 == 0 or total_pdf == self.total_records:
                     self.log(f"[Agent 2] Rendered {total_pdf}/{self.total_records} PDFs.")
                     self.emit_progress()
 
@@ -544,7 +573,7 @@ class PipelineManager:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="FORM-5 Resilient Parallel Pipeline (JSON Extraction + PDF Generation)")
-    parser.add_argument("--workers", type=int, default=4, help="Number of PDF worker threads (default: 4)")
+    parser.add_argument("--workers", type=int, default=2, help="Number of PDF worker threads (default: 2, max: 3)")
     parser.add_argument("--force", action="store_true", help="Force re-generation of all JSONs and PDFs")
     parser.add_argument("--status", action="store_true", help="Print pipeline status and exit")
     args = parser.parse_args()
