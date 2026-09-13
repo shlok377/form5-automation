@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# FORM-5 Master Launcher
+# FORM-5 Master Launcher (Linux / macOS)
 # ==============================================================================
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${SCRIPT_DIR}"
+CORE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ROOT_DIR="$(cd "${CORE_DIR}/.." && pwd)"
 
-# Determine Python binary (.venv preferred)
-if [ -x "${SCRIPT_DIR}/.venv/bin/python3" ]; then
-    PYTHON_BIN="${SCRIPT_DIR}/.venv/bin/python3"
+# Determine Python binary (core/.venv preferred)
+if [ -x "${CORE_DIR}/.venv/bin/python3" ]; then
+    PYTHON_BIN="${CORE_DIR}/.venv/bin/python3"
+elif [ -x "${ROOT_DIR}/.venv/bin/python3" ]; then
+    PYTHON_BIN="${ROOT_DIR}/.venv/bin/python3"
 elif command -v python3 &> /dev/null; then
     PYTHON_BIN="python3"
 else
-    echo "Error: Python 3 not found. Please run ./install.sh first."
+    echo "Error: Python 3 not found. Please run ./core/scripts/install.sh first."
     exit 1
 fi
+
+cd "${CORE_DIR}"
 
 if [ "$1" = "--cli" ] || [ "$1" = "-c" ] || [ "$1" = "--batch" ]; then
     shift
@@ -24,7 +29,7 @@ if [ "$1" = "--cli" ] || [ "$1" = "-c" ] || [ "$1" = "--batch" ]; then
 elif [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
     exec "${PYTHON_BIN}" application/pipeline.py --status
 elif [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-    echo "Usage: ./run.sh [OPTIONS]"
+    echo "Usage: ./core/scripts/run.sh [OPTIONS]"
     echo ""
     echo "Options:"
     echo "  (no args)           Start the Web Dashboard server on http://localhost:8080"

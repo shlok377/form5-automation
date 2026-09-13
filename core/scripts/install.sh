@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# FORM-5 Medical Examination System - Client Automated Setup Script
+# FORM-5 Medical Examination System - Linux / macOS Setup Script
 # ==============================================================================
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${SCRIPT_DIR}"
+CORE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ROOT_DIR="$(cd "${CORE_DIR}/.." && pwd)"
+
+cd "${CORE_DIR}"
 
 echo ""
 echo "================================================================="
@@ -59,14 +62,14 @@ if [ "${CHROMIUM_FOUND}" = false ]; then
     fi
 fi
 
-# 4. Set up Python Virtual Environment (.venv)
-echo "[3/6] Setting up Python virtual environment (.venv)..."
-if [ ! -d ".venv" ]; then
-    python3 -m venv .venv || {
+# 4. Set up Python Virtual Environment (core/.venv)
+echo "[3/6] Setting up Python virtual environment (core/.venv)..."
+if [ ! -d "${CORE_DIR}/.venv" ]; then
+    python3 -m venv "${CORE_DIR}/.venv" || {
         echo "Warning: python3 -m venv failed. Attempting to install python3-venv..."
         if command -v apt-get &> /dev/null; then
             sudo apt-get install -y python3-venv python3-pip
-            python3 -m venv .venv
+            python3 -m venv "${CORE_DIR}/.venv"
         else
             echo "Please install python3-venv and re-run this script."
             exit 1
@@ -76,28 +79,29 @@ fi
 
 # 5. Install Dependencies inside .venv
 echo "[4/6] Installing required Python packages..."
-"${SCRIPT_DIR}/.venv/bin/pip" install --upgrade pip --quiet
-"${SCRIPT_DIR}/.venv/bin/pip" install -r requirements.txt --quiet
+"${CORE_DIR}/.venv/bin/pip" install --upgrade pip --quiet
+"${CORE_DIR}/.venv/bin/pip" install -r "${CORE_DIR}/requirements.txt" --quiet
 echo "Dependencies installed successfully."
 
 # 6. Ensure required directories & permissions
 echo "[5/6] Ensuring project directories and permissions..."
-mkdir -p data temp_json output
-chmod +x install.sh run.sh run_pipeline.sh start_dashboard.sh 2>/dev/null || true
-chmod +x application/*.py 2>/dev/null || true
+mkdir -p "${CORE_DIR}/data" "${CORE_DIR}/temp_json" "${ROOT_DIR}/output"
+chmod +x "${CORE_DIR}/scripts/"*.sh 2>/dev/null || true
+chmod +x "${CORE_DIR}/application/"*.py 2>/dev/null || true
 
 # 7. Self-test check
 echo "[6/6] Running system pre-flight verification..."
-"${SCRIPT_DIR}/.venv/bin/python3" -c "
+PYTHONPATH="${CORE_DIR}/application" "${CORE_DIR}/.venv/bin/python3" -c "
 import aiohttp
-from application.generate_pdfs import find_chromium
-from application.pipeline import PipelineManager
+import openpyxl
+from generate_pdfs import find_chromium
+from pipeline import PipelineManager
 chrom = find_chromium()
 if not chrom:
     print('WARNING: Chromium path not resolved by Python.')
 else:
     print(f'Chromium engine verified: {chrom}')
-mgr = PipelineManager()
+mgr = PipelineManager(base_dir='${CORE_DIR}', root_dir='${ROOT_DIR}')
 st = mgr.get_status()
 print('Pipeline core initialized cleanly.')
 "
@@ -109,17 +113,10 @@ echo "---------------------------------------------------------------"
 echo ""
 echo "  HOW TO LAUNCH:"
 echo ""
-echo "  1. Desktop / File Explorer (Easiest for Windows):"
-echo "     Double-click \"run.bat\" in this folder."
+echo "  Linux / macOS:"
+echo "     ./core/scripts/run.sh"
 echo ""
-echo "  2. Terminal / Command Line:"
-echo "     ./run.sh  (or 'run.bat' on Windows)"
-echo ""
-echo "  The dashboard will open automatically in your default browser."
-echo ""
-echo "  -------------------------------------------------------------"
-echo "  Secondary Options (Headless / Scripting):"
-echo "  • Batch process without UI:  ./run.sh --cli  (or run.bat --cli)"
-echo "  • View current queue status: ./run.sh --status (or run.bat --status)"
+echo "  Windows (Client):"
+echo "     Double-click \"2_START.bat\" in the project folder."
 echo "---------------------------------------------------------------"
 echo ""

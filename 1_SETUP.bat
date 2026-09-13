@@ -6,6 +6,8 @@ echo    FORM-5 Medical Examination Automation System - Windows Setup
 echo =================================================================
 echo.
 
+cd /d "%~dp0"
+
 :: 1. Check if Python is installed
 echo [1/4] Checking Python installation...
 set PYTHON_CMD=
@@ -53,45 +55,40 @@ if "%PYTHON_CMD%"=="" (
 
 echo Using Python: %PYTHON_CMD%
 
-:: 2. Set up Virtual Environment
+:: 2. Set up Virtual Environment inside core\.venv
 echo.
-echo [2/4] Creating Python virtual environment (.venv)...
-if not exist ".venv" (
-    %PYTHON_CMD% -m venv .venv
+echo [2/4] Setting up Python virtual environment (core\.venv)...
+if not exist "core\.venv" (
+    %PYTHON_CMD% -m venv core\.venv
 )
 
-:: 3. Install Dependencies
+:: 3. Install Dependencies from core\requirements.txt
 echo.
 echo [3/4] Installing dependencies...
-call .venv\Scripts\pip install --upgrade pip --quiet
-call .venv\Scripts\pip install -r requirements.txt --quiet
+call core\.venv\Scripts\pip install --upgrade pip --quiet
+call core\.venv\Scripts\pip install -r core\requirements.txt --quiet
 
-:: 4. Ensure Directory Structure
+:: 4. Ensure Directory Structure & Create Desktop Shortcut
 echo.
 echo [4/4] Verifying directory structure...
-if not exist "data" mkdir data
-if not exist "temp_json" mkdir temp_json
 if not exist "output" mkdir output
+if not exist "core\data" mkdir core\data
+if not exist "core\temp_json" mkdir core\temp_json
+
+echo Creating Desktop shortcut for convenient access...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ws = New-Object -ComObject WScript.Shell; $d = [Environment]::GetFolderPath('Desktop'); $s = $ws.CreateShortcut([System.IO.Path]::Combine($d, 'FORM-5 Medical Automation.lnk')); $s.TargetPath = '%~dp02_START.bat'; $s.WorkingDirectory = '%~dp0'; $s.Description = 'Launch FORM-5 Medical Examination Dashboard'; $s.Save()" >nul 2>&1
 
 echo.
-echo ---------------------------------------------------------------
+echo =================================================================
 echo   Installation Complete!
-echo ---------------------------------------------------------------
+echo =================================================================
 echo.
-echo   HOW TO LAUNCH:
+echo   HOW TO USE:
 echo.
-echo   1. Desktop / File Explorer (Easiest):
-echo      Double-click "run.bat" in this folder.
+echo   Option 1: Double-click "2_START.bat" in this folder.
+echo   Option 2: Double-click "FORM-5 Medical Automation" on your Desktop.
 echo.
-echo   2. Command Prompt / PowerShell:
-echo      run.bat
-echo.
-echo   The dashboard will open automatically in your default browser.
-echo.
-echo   -------------------------------------------------------------
-echo   Secondary Options (Headless / Scripting):
-echo   * Batch process without UI:  run.bat --cli
-echo   * View current queue status: run.bat --status
-echo ---------------------------------------------------------------
+echo   All generated PDFs will automatically be saved into the "output" folder.
+echo =================================================================
 echo.
 pause

@@ -24,18 +24,35 @@ from validator import validate_csv_content, validate_csv_file
 from pipeline import PipelineManager, build_filled_html
 from excel_adapter import convert_xlsx_to_csv, is_excel_file
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
-DATA_DIR = os.path.join(BASE_DIR, "data")
-TEMP_JSON_DIR = os.path.join(BASE_DIR, "temp_json")
-OUTPUT_DIR = os.path.join(BASE_DIR, "output")
-MAPPING_CONFIG = os.path.join(BASE_DIR, "mapping_config.json")
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+CORE_DIR = os.path.dirname(APP_DIR)
+ROOT_DIR = os.path.dirname(CORE_DIR)
+
+STATIC_DIR = os.path.join(APP_DIR, "static")
+DATA_DIR = os.path.join(CORE_DIR, "data")
+TEMP_JSON_DIR = os.path.join(CORE_DIR, "temp_json")
+OUTPUT_DIR = os.path.join(ROOT_DIR, "output")
+
+# Safe mapping config resolution
+MAPPING_CONFIG = os.path.join(CORE_DIR, "config", "mapping_config.json")
 if not os.path.exists(MAPPING_CONFIG):
-    MAPPING_CONFIG = os.path.join(BASE_DIR, "application", "mapping_config.json")
-TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "form_template.html")
+    for candidate in [
+        os.path.join(CORE_DIR, "mapping_config.json"),
+        os.path.join(APP_DIR, "mapping_config.json"),
+        os.path.join(ROOT_DIR, "mapping_config.json")
+    ]:
+        if os.path.exists(candidate):
+            MAPPING_CONFIG = candidate
+            break
+
+TEMPLATE_PATH = os.path.join(APP_DIR, "form_template.html")
 TEMP_UPLOAD_PATH = os.path.join(DATA_DIR, ".uploaded_pending.csv")
 
-pipeline_manager = PipelineManager(BASE_DIR)
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(TEMP_JSON_DIR, exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+pipeline_manager = PipelineManager(base_dir=CORE_DIR, root_dir=ROOT_DIR)
 
 async def handle_index(request):
     index_path = os.path.join(STATIC_DIR, "index.html")

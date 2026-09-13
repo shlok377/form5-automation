@@ -132,8 +132,21 @@ def validate_csv_file(file_path, config_path):
         return validate_csv_content(f, config_path)
 
 if __name__ == "__main__":
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    csv_file = os.path.join(base_dir, "data", "data.csv")
-    cfg_file = os.path.join(base_dir, "mapping_config.json")
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    core_dir = os.path.dirname(app_dir)
+    root_dir = os.path.dirname(core_dir)
+
+    csv_file = os.path.join(core_dir, "data", "data.csv")
+    cfg_file = os.path.join(core_dir, "config", "mapping_config.json")
+    if not os.path.exists(cfg_file):
+        for candidate in [
+            os.path.join(core_dir, "mapping_config.json"),
+            os.path.join(app_dir, "mapping_config.json"),
+            os.path.join(root_dir, "mapping_config.json"),
+        ]:
+            if os.path.exists(candidate):
+                cfg_file = candidate
+                break
+
     report = validate_csv_file(csv_file, cfg_file)
     print("Validation result:", json.dumps(report, indent=2))

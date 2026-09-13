@@ -35,21 +35,38 @@ class PipelineManager:
     """
     Orchestrates Agent 1 and Agent 2 in a parallel producer-consumer queue.
     """
-    def __init__(self, base_dir=None):
-        if base_dir is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.base_dir = base_dir
-        self.data_csv = os.path.join(base_dir, "data", "data.csv")
-        self.mapping_config = os.path.join(base_dir, "mapping_config.json")
-        if not os.path.exists(self.mapping_config):
-            self.mapping_config = os.path.join(base_dir, "application", "mapping_config.json")
-        self.temp_json_dir = os.path.join(base_dir, "temp_json")
-        self.output_dir = os.path.join(base_dir, "output")
-        self.template_path = os.path.join(base_dir, "application", "form_template.html")
+    def __init__(self, base_dir=None, root_dir=None):
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        core_dir = os.path.dirname(app_dir)
+        default_root = os.path.dirname(core_dir)
+
+        self.root_dir = root_dir or default_root
+        self.core_dir = base_dir or core_dir
+        self.base_dir = self.core_dir  # for backward-compatibility
+
+        self.data_csv = os.path.join(self.core_dir, "data", "data.csv")
+
+        # Safe mapping config resolution
+        for candidate in [
+            os.path.join(self.core_dir, "config", "mapping_config.json"),
+            os.path.join(self.core_dir, "mapping_config.json"),
+            os.path.join(app_dir, "mapping_config.json"),
+            os.path.join(self.root_dir, "mapping_config.json"),
+        ]:
+            if os.path.exists(candidate):
+                self.mapping_config = candidate
+                break
+        else:
+            self.mapping_config = os.path.join(self.core_dir, "config", "mapping_config.json")
+
+        self.temp_json_dir = os.path.join(self.core_dir, "temp_json")
+        self.output_dir = os.path.join(self.root_dir, "output")
+        self.template_path = os.path.join(app_dir, "form_template.html")
         self.failed_log_path = os.path.join(self.temp_json_dir, "failed_records.json")
         
         os.makedirs(self.temp_json_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(self.data_csv), exist_ok=True)
         
         self.chromium_path = find_chromium()
         self.lock = threading.RLock()

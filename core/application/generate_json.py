@@ -240,13 +240,26 @@ def build_employee_json(row, index_num, mapping):
     return filename, data
 
 def main():
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    csv_path = os.path.join(base_dir, "data", "data.csv")
-    config_path = os.path.join(base_dir, "application", "mapping_config.json")
-    output_dir = os.path.join(base_dir, "temp_json")
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    core_dir = os.path.dirname(app_dir)
+    root_dir = os.path.dirname(core_dir)
+
+    csv_path = os.path.join(core_dir, "data", "data.csv")
+    config_path = os.path.join(core_dir, "config", "mapping_config.json")
+    if not os.path.exists(config_path):
+        for candidate in [
+            os.path.join(core_dir, "mapping_config.json"),
+            os.path.join(app_dir, "mapping_config.json"),
+            os.path.join(root_dir, "mapping_config.json"),
+        ]:
+            if os.path.exists(candidate):
+                config_path = candidate
+                break
+
+    output_dir = os.path.join(core_dir, "temp_json")
 
     if not os.path.exists(csv_path):
-        xlsx_path = os.path.join(base_dir, "data", "data.xlsx")
+        xlsx_path = os.path.join(core_dir, "data", "data.xlsx")
         if os.path.exists(xlsx_path):
             try:
                 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

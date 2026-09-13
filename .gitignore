@@ -1,11 +1,13 @@
 # Python Virtual Environments
 .venv/
+**/.venv/
 venv/
 ENV/
 env/
 
 # Python Cache & Bytecode
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.tmp
@@ -16,9 +18,19 @@ data/*.xlsx
 data/*.bak
 data/.uploaded_pending.csv
 !data/.gitkeep
+core/data/*.csv
+core/data/*.xlsx
+core/data/*.bak
+core/data/.uploaded_pending.csv
+!core/data/.gitkeep
+
 temp_json/*.json
 temp_json/failed_records.json
 !temp_json/.gitkeep
+core/temp_json/*.json
+core/temp_json/failed_records.json
+!core/temp_json/.gitkeep
+
 output/*.pdf
 output/*.zip
 output/.*.tmp

@@ -155,10 +155,13 @@ def main():
     parser.add_argument("--single", type=str, default=None, help="Process a specific JSON filename or employee index")
     args = parser.parse_args()
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    json_dir = os.path.join(base_dir, "temp_json")
-    output_dir = os.path.join(base_dir, "output")
-    template_path = os.path.join(base_dir, "application", "form_template.html")
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    core_dir = os.path.dirname(app_dir)
+    root_dir = os.path.dirname(core_dir)
+
+    json_dir = os.path.join(core_dir, "temp_json")
+    output_dir = os.path.join(root_dir, "output")
+    template_path = os.path.join(app_dir, "form_template.html")
 
     chromium_path = find_chromium()
     if not chromium_path:

@@ -1,79 +1,77 @@
-
-## 🚀 Quick Start (1-Minute Setup)
-
-### Windows (Zero Prerequisites Required)
-1. **Double-click `install.bat`**
-   - Automatically detects or installs Python 3.11 (via `winget` or direct silent download from python.org).
-   - Uses pre-installed **Microsoft Edge** or **Google Chrome** natively.
-   - Sets up the `.venv` virtual environment and installs required dependencies.
-2. **Double-click `run.bat`**
-   - Automatically starts the server on `http://localhost:8080` and opens your default browser.
-
-### Linux / macOS
-1. **Run `./install.sh`**
-   - Detects system package manager, verifies Chromium/Chrome, and configures `.venv`.
-2. **Run `./run.sh`**
-   - Launches the dashboard on `http://localhost:8080`.
+# FORM-5 Medical Examination Automation System
+### Statutory Health Reporting under Gujarat Factories Rules (Form No. 5, Rule 68-T & 102)
 
 ---
 
-## 🖥️ How to Run the System
+## 🚀 Quick Start for Clients (Windows)
+
+Zero configuration or prior programming setup required. Everything runs out-of-the-box.
+
+1. **Step 1: Run Setup**
+   - Double-click **`1_SETUP.bat`**.
+   - Automatically configures the isolated environment, dependencies, and places a **FORM-5 Medical Automation** shortcut on your Desktop.
+
+2. **Step 2: Launch Dashboard**
+   - Double-click **`2_START.bat`** (or use your Desktop shortcut).
+   - The Web Dashboard opens automatically in your browser at **http://localhost:8080**.
+
+3. **Step 3: Generate PDFs**
+   - Drag and drop your `.xlsx` or `.csv` spreadsheet onto the dashboard.
+   - Click **Start Pipeline**.
+   - When finished, click **Download All (.ZIP)** or find your completed PDFs ready in the **`output/`** folder.
+
+---
+
+## 🖥️ Usage Options
 
 ### Option A: Interactive Web Dashboard (Recommended)
-- **Windows**: Double-click `run.bat`
-- **Linux/macOS**: `./run.sh`
+- **Windows**: Double-click `2_START.bat`
+- **Linux / macOS**: `./core/scripts/run.sh`
 
-Open **http://localhost:8080** in any browser.
-
-**Features in Web Dashboard**:
-- **Drag & Drop Excel (.xlsx) & CSV Upload**: Automatic in-memory conversion of Excel spreadsheets into clean, normalized CSVs with instant pre-flight validation.
-- **One-Click Run on Existing Data**: Process `data/data.csv` (or `data/data.xlsx`) instantly.
-- **Two-Agent Live Monitoring**: Real-time pastel donut charts and status indicators via Server-Sent Events (SSE).
-- **Live Logs Drawer**: Inspect real-time worker logs directly from the browser.
+**Dashboard Capabilities:**
+- **Drag & Drop Excel (.xlsx) & CSV Upload**: Automatic in-memory conversion with instant validation.
+- **Two-Agent Live Monitoring**: Real-time progress donuts and status counters via Server-Sent Events (SSE).
 - **Interactive Records Browser**: Search employee records, open instant HTML previews, and download individual PDFs.
-- **Batch ZIP Export**: Download all generated PDFs in one click via **"Download All (.ZIP)"**.
+- **Batch ZIP Export**: Download all generated PDFs in one package via **"Download All (.ZIP)"**.
+- **Minimalist Completion Modal**: Notifies you when 100% of PDFs are verified and ready.
 
-### Option B: High-Speed CLI Batch Generation
-- **Windows**: `run.bat --cli`
-- **Linux/macOS**: `./run.sh --cli`
+### Option B: Headless CLI Batch Generation
+- **Windows**: `2_START.bat --cli`
+- **Linux / macOS**: `./core/scripts/run.sh --cli`
 
-*Tip: To force re-generation of all records from scratch:*
-- **Windows**: `run.bat --cli --force`
-- **Linux/macOS**: `./run.sh --cli --force`
+*To force regeneration of all records:*
+- **Windows**: `2_START.bat --cli --force`
+- **Linux / macOS**: `./core/scripts/run.sh --cli --force`
 
-### Option C: Check Current Pipeline Status
-- **Windows**: `run.bat --status`
-- **Linux/macOS**: `./run.sh --status`
+### Option C: Queue Status Check
+- **Windows**: `2_START.bat --status`
+- **Linux / macOS**: `./core/scripts/run.sh --status`
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Organization
+
+Clean **"Single Door"** architecture separating user controls from internal machinery:
 
 ```text
-├── install.sh                  # Automated system installer & dependency manager
-├── run.sh                      # Master executable launcher (Web Dashboard or CLI)
-├── run_pipeline.sh             # Shortcut to launch parallel batch pipeline
-├── start_dashboard.sh          # Shortcut to launch web dashboard server
-├── requirements.txt            # Python dependencies (aiohttp)
-├── mapping_config.json         # Master CSV-to-form column mapping schema
-├── .gitignore                  # Strict security filter preventing medical data leaks
+form5-automation/
+├── 📄 1_SETUP.bat              # Step 1: One-click setup & Desktop shortcut creation
+├── 📄 2_START.bat              # Step 2: Double-click launcher (starts Web Dashboard)
+├── 📂 output/                  # Final 4-page print-ready employee PDFs saved here
+├── 📄 README.md                # System documentation
 │
-├── application/
-│   ├── generate_json.py        # Agent 1: Data extraction & Section F clinical evaluation
-│   ├── generate_pdfs.py        # Agent 2: Headless Chromium 4-page PDF renderer
-│   ├── pipeline.py             # Resilient parallel producer-consumer queue orchestrator
-│   ├── validator.py            # Pre-flight CSV validator and structure checker
-│   ├── server.py               # Asynchronous REST & Server-Sent Events (SSE) server
-│   ├── form_template.html      # 4-page statutory FORM-5 print template
-│   ├── mapping_ui.html         # Visual interactive mapping calibration tool
-│   ├── logo.png                # Edge-to-edge header banner logo
-│   └── static/
-│       └── index.html          # Web Dashboard UI
-│
-├── data/
-│   └── data.csv                # Active input employee health examination dataset
-├── temp_json/                  # Intermediate structured JSON records
-└── output/                     # Final 4-page print-ready employee PDFs
+└── 📂 core/                    # Engine internals (isolated from accidental edits)
+    ├── application/            # Server, pipeline orchestrator, PDF & JSON agents, UI
+    ├── config/                 # mapping_config.json (Column mapping schema)
+    ├── data/                   # Internal working storage
+    ├── temp_json/              # Intermediate clinical JSON records
+    ├── scripts/                # Linux / macOS setup and launcher scripts
+    ├── docs_local/             # Form reference scans
+    └── requirements.txt        # Python dependency list
 ```
 
 ---
+
+## 🔒 Confidentiality & Security
+- All processing executes **100% locally** on the host machine.
+- No employee medical data or identifiable health information leaves the local computer or connects to external cloud servers.
