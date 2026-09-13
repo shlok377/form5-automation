@@ -337,18 +337,10 @@ class PipelineManager:
         self.emit_progress()
 
     def _extractor_producer_loop(self, rows, mapping, force):
-        """Agent 1: Row extraction & atomic JSON generation in batches of 5 with 2s pause"""
-        BATCH_SIZE = 5
-        PAUSE_SECONDS = 2.0
+        """Agent 1: Reactive chunked extraction (dumps 3 JSONs, waits for Agent 2 to finish)"""
+        CHUNK_SIZE = 3
 
         for i, row in enumerate(rows, start=1):
-            if self.stop_requested:
-                break
-
-            # Natural queue backpressure: pause if queue has >= 10 items until Agent 2 catches up
-            while self.work_queue.qsize() >= 10 and not self.stop_requested:
-                time.sleep(0.2)
-
             if self.stop_requested:
                 break
 
@@ -411,16 +403,15 @@ class PipelineManager:
                         })
                         self._save_failures()
 
-            # Pacing & Progress emission: pause 2s every 5 records to allow Agent 2 steady throughput
             total_ready = self.json_generated + self.json_skipped
-            if i % BATCH_SIZE == 0 and i < len(rows):
-                self.log(f"[Agent 1] Extracted {total_ready}/{self.total_records} records. Pausing {int(PAUSE_SECONDS)}s...")
+
+            # Barrier Synchronization: Dump chunk of 3, then wait for Agent 2 to finish generating
+            if i % CHUNK_SIZE == 0 and i < len(rows):
+                self.log(f"[Agent 1] Dispatched batch of {CHUNK_SIZE} ({total_ready}/{self.total_records}). Waiting for Agent 2...")
                 self.emit_progress()
-                # Responsive pause in 0.1s slices so stop requests are handled immediately
-                for _ in range(int(PAUSE_SECONDS / 0.1)):
-                    if self.stop_requested:
-                        break
-                    time.sleep(0.1)
+                # Reactive wait loop: unblocks the millisecond Agent 2 finishes the chunk
+                while self.work_queue.unfinished_tasks > 0 and not self.stop_requested:
+                    time.sleep(0.05)
             elif i == len(rows):
                 self.log(f"[Agent 1] Completed extracting all {total_ready}/{self.total_records} records.")
                 self.emit_progress()
@@ -450,6 +441,10 @@ class PipelineManager:
                         if any(f.get("code") == code for f in self.failed_records):
                             self.failed_records = [f for f in self.failed_records if f.get("code") != code]
                             self._save_failures()
+                    total_pdf = self.pdf_generated + self.pdf_skipped
+                    if total_pdf % 3 == 0 or total_pdf == self.total_records:
+                        self.log(f"[Agent 2] Ready {total_pdf}/{self.total_records} PDFs.")
+                    self.emit_progress()
                     continue
 
                 filled_html = build_filled_html(template_str, emp_data)
@@ -496,9 +491,9 @@ class PipelineManager:
                     self.pdf_generated += 1
 
                 total_pdf = self.pdf_generated + self.pdf_skipped
-                if total_pdf % 5 == 0 or total_pdf == self.total_records:
+                if total_pdf % 3 == 0 or total_pdf == self.total_records:
                     self.log(f"[Agent 2] Rendered {total_pdf}/{self.total_records} PDFs.")
-                    self.emit_progress()
+                self.emit_progress()
 
             except Exception as e:
                 code = emp_data.get("employee_code", "UNKNOWN") if 'emp_data' in locals() else "UNKNOWN"
