@@ -438,14 +438,14 @@
           <span>Download Backup (.ZIP) & Clear</span>
         </button>
 
-        <!-- Option 2: Clear without backup -->
+        <!-- Option 2: Already Backed Up, Clear -->
         <button 
           id="clearOnlyBtn"
           onclick="confirmNewBatch(false)" 
           class="w-full bg-sand-50 hover:bg-clay-50 hover:text-clay-800 text-sand-800 border border-sand-200 hover:border-clay-200 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-trash-can text-xs"></i>
-          <span>Clear Without Backup</span>
+          <span>Already Backed Up, Clear</span>
         </button>
 
         <!-- Option 3: Cancel -->
@@ -683,7 +683,7 @@
         backupBtn.disabled = false;
         clearBtn.disabled = false;
         backupBtn.innerHTML = '<i class="fa-solid fa-file-zipper text-sm"></i><span>Download Backup (.ZIP) & Clear</span>';
-        clearBtn.innerHTML = '<i class="fa-solid fa-trash-can text-xs"></i><span>Clear Without Backup</span>';
+        clearBtn.innerHTML = '<i class="fa-solid fa-trash-can text-xs"></i><span>Already Backed Up, Clear</span>';
       }
     }
 
