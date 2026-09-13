@@ -117,26 +117,6 @@
       <input type="file" id="fileInput" accept=".csv, .xlsx, .xlsm, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv" class="hidden" onchange="handleFileSelected(this.files[0])" />
     </div>
 
-    <!-- Quick action: Process Existing CSV -->
-    <div class="bg-white border border-sand-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-sage-50 border border-sage-200 flex items-center justify-center text-sage-600">
-          <i class="fa-solid fa-database text-sm"></i>
-        </div>
-        <div>
-          <p class="text-sm font-bold text-sand-900">Use Existing Dataset</p>
-          <p class="text-xs text-sand-800/70">Execute pipeline using current <code class="font-mono text-sand-900">data/data.csv</code></p>
-        </div>
-      </div>
-      <button 
-        onclick="startWithExistingData()"
-        class="bg-sage-600 hover:bg-sage-800 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2"
-      >
-        <span>Run Pipeline</span>
-        <i class="fa-solid fa-arrow-right text-[10px]"></i>
-      </button>
-    </div>
-
     <!-- Preflight Card (Appears after upload) -->
     <div id="preflightCard" class="hidden bg-white border border-sand-200 rounded-2xl p-6 shadow-sm space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-sand-100">
@@ -367,8 +347,55 @@
 
   </div>
 
+  <!-- MODAL: COMPLETED POPUP (CLEAN, MINIMAL, OPACITY BACKDROP WITHOUT BLUR) -->
+  <div id="completedModal" onclick="if(event.target === this) closeCompletedModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 transition-opacity duration-300 opacity-0">
+    <div id="completedCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-95 transition-all duration-300 ease-out space-y-6">
+      
+      <!-- Minimalist Check Icon -->
+      <div class="mx-auto w-16 h-16 rounded-2xl bg-sage-100 border border-sage-200 flex items-center justify-center text-sage-600 text-2xl shadow-sm">
+        <i class="fa-solid fa-check"></i>
+      </div>
+
+      <!-- Title & Message -->
+      <div class="space-y-1.5">
+        <h2 class="text-2xl font-bold tracking-tight text-sand-900">Completed!</h2>
+        <p id="completedModalMessage" class="text-xs text-sand-800/70 leading-relaxed">
+          All employee medical forms processed with strict 4-page compliance.
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2.5 pt-2">
+        <a 
+          href="/api/download-all" 
+          download 
+          class="w-full bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-file-zipper text-sm"></i>
+          <span>Download All (.ZIP)</span>
+        </a>
+
+        <button 
+          onclick="openRecordsFromCompleted()" 
+          class="w-full bg-sage-50 hover:bg-sage-100 text-sage-800 border border-sage-200 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-list-check text-xs"></i>
+          <span>Browse Records</span>
+        </button>
+
+        <button 
+          onclick="closeCompletedModal()" 
+          class="w-full text-sand-800/50 hover:text-sand-900 font-semibold text-xs py-1.5 transition-colors"
+        >
+          Dismiss
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- MODAL: RECORDS BROWSER & DOWNLOADS -->
-  <div id="recordsModal" class="hidden fixed inset-0 bg-sand-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+  <div id="recordsModal" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 transition-opacity duration-300">
     <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-sand-200 overflow-hidden">
       
       <div class="p-6 border-b border-sand-100 flex items-center justify-between">
@@ -416,6 +443,7 @@
     let timerInterval = null;
     let startTime = null;
     let allRecords = [];
+    let completedModalShown = false;
 
     const dropZone = document.getElementById("dropZone");
     ['dragenter', 'dragover'].forEach(name => {
@@ -495,8 +523,37 @@
       }
     }
 
-    async function startWithExistingData() {
-      startPipelineExecution(false);
+    function showCompletedModal(pdfCount) {
+      const modal = document.getElementById("completedModal");
+      const card = document.getElementById("completedCard");
+      const msg = document.getElementById("completedModalMessage");
+      if (pdfCount && pdfCount > 0) {
+        msg.textContent = `All ${pdfCount} employee medical forms processed with strict 4-page compliance.`;
+      }
+      modal.classList.remove("hidden");
+      requestAnimationFrame(() => {
+        modal.classList.remove("opacity-0");
+        modal.classList.add("opacity-100");
+        card.classList.remove("scale-95");
+        card.classList.add("scale-100");
+      });
+    }
+
+    function closeCompletedModal() {
+      const modal = document.getElementById("completedModal");
+      const card = document.getElementById("completedCard");
+      modal.classList.remove("opacity-100");
+      modal.classList.add("opacity-0");
+      card.classList.remove("scale-100");
+      card.classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 300);
+    }
+
+    function openRecordsFromCompleted() {
+      closeCompletedModal();
+      loadRecordsModal();
     }
 
     async function startPipelineExecution(force = false) {
@@ -585,6 +642,11 @@
         const banner = document.getElementById("completedBanner");
         banner.classList.remove("hidden");
         document.getElementById("completionSummary").textContent = `100% of ${pdfReady} print-ready PDFs verified and ready in output/`;
+
+        if (!completedModalShown) {
+          completedModalShown = true;
+          setTimeout(() => showCompletedModal(pdfReady), 600);
+        }
       }
     }
 
