@@ -7,26 +7,28 @@ An enterprise-grade, high-throughput system that transforms health examination C
 
 ## 🚀 Quick Start (1-Minute Setup)
 
-### 1. Install Everything with One Script
-On the target machine (Ubuntu, Debian, Fedora, Arch, or macOS), run:
-```bash
-./install.sh
-```
-This automated script will:
-- Check for Python 3.8+ and package managers.
-- Check and automatically install Chromium browser if missing.
-- Create an isolated Python virtual environment (`.venv`).
-- Install all required dependencies (`aiohttp`).
-- Set permissions and verify system health.
+### Windows (Zero Prerequisites Required)
+1. **Double-click `install.bat`**
+   - Automatically detects or installs Python 3.11 (via `winget` or direct silent download from python.org).
+   - Uses pre-installed **Microsoft Edge** or **Google Chrome** natively.
+   - Sets up the `.venv` virtual environment and installs required dependencies.
+2. **Double-click `run.bat`**
+   - Automatically starts the server on `http://localhost:8080` and opens your default browser.
+
+### Linux / macOS
+1. **Run `./install.sh`**
+   - Detects system package manager, verifies Chromium/Chrome, and configures `.venv`.
+2. **Run `./run.sh`**
+   - Launches the dashboard on `http://localhost:8080`.
 
 ---
 
 ## 🖥️ How to Run the System
 
 ### Option A: Interactive Web Dashboard (Recommended)
-```bash
-./run.sh
-```
+- **Windows**: Double-click `run.bat`
+- **Linux/macOS**: `./run.sh`
+
 Open **http://localhost:8080** in any browser.
 
 **Features in Web Dashboard**:
@@ -38,19 +40,16 @@ Open **http://localhost:8080** in any browser.
 - **Batch ZIP Export**: Download all generated PDFs in one click via **"Download All (.ZIP)"**.
 
 ### Option B: High-Speed CLI Batch Generation
-To generate PDFs for all employees directly from the terminal:
-```bash
-./run.sh --cli
-```
+- **Windows**: `run.bat --cli`
+- **Linux/macOS**: `./run.sh --cli`
+
 *Tip: To force re-generation of all records from scratch:*
-```bash
-./run.sh --cli --force
-```
+- **Windows**: `run.bat --cli --force`
+- **Linux/macOS**: `./run.sh --cli --force`
 
 ### Option C: Check Current Pipeline Status
-```bash
-./run.sh --status
-```
+- **Windows**: `run.bat --status`
+- **Linux/macOS**: `./run.sh --status`
 
 ---
 
