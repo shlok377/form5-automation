@@ -25,17 +25,6 @@ if "%1"=="--status" (
     exit /b 0
 )
 
-echo =================================================================
-echo    FORM-5 Medical Examination Automation System
-echo =================================================================
-echo.
-echo Starting Web Dashboard server at http://localhost:8080...
-echo Opening your default browser...
-echo.
-echo (Keep this window open while using the application. Press Ctrl+C to stop.)
-echo.
-
 start http://localhost:8080
 "%PYTHON_EXEC%" core\application\server.py 8080
-
 pause

@@ -257,6 +257,18 @@ if __name__ == "__main__":
     port = 8080
     if len(sys.argv) > 1 and sys.argv[1].isdigit():
         port = int(sys.argv[1])
-    print(f"Starting FORM-5 Dashboard server on http://localhost:{port}")
+    
+    url = f"http://localhost:{port}"
+    print("\n" + "─" * 63)
+    print("  FORM-5 Dashboard is Live & Ready")
+    print("─" * 63)
+    print("")
+    print("  ➜ Hold Ctrl and click to open in browser:")
+    print(f"    {url}")
+    print("")
+    print("  (Press Ctrl+C in this terminal to stop the server)")
+    print("─" * 63 + "\n")
+
     app = create_app()
-    web.run_app(app, host="127.0.0.1", port=port)
+    web.run_app(app, host="127.0.0.1", port=port, print=None)
+

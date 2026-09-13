@@ -40,8 +40,5 @@ elif [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     exit 0
 else
     PORT="${1:-8080}"
-    echo "Starting FORM-5 Dashboard Server on http://localhost:${PORT}..."
-    echo "Press Ctrl+C to stop the server."
-    echo ""
     exec "${PYTHON_BIN}" application/server.py "${PORT}"
 fi
