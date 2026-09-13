@@ -73,79 +73,43 @@
 
   <style>
     /* ========================================================= */
-    /* ULTRA-EXPRESSIVE & FLUID ANIMATION SYSTEM                */
+    /* ANIMATIONS & FLUID MOTION SYSTEM                         */
     /* ========================================================= */
 
-    /* Smooth Donut Progress */
-    .donut-ring {
-      transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-      transform: rotate(-90deg);
-      transform-origin: 50% 50%;
-    }
-
-    /* Floating / Bobbing Animations */
     @keyframes gentleFloat {
-      0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-      }
-      50% {
-        transform: translateY(-8px) rotate(1deg);
-      }
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(1deg); }
     }
-
     .animate-float {
       animation: gentleFloat 4s ease-in-out infinite;
     }
 
-    /* Breathing Ambient Glows */
+    /* Ambient Halo Breathing */
     @keyframes glowSage {
       0%, 100% {
-        box-shadow: 0 10px 30px -10px rgba(104, 157, 121, 0.15), 0 0 0 1px rgba(199, 221, 206, 0.8);
+        box-shadow: 0 10px 30px -10px rgba(104, 157, 121, 0.12), 0 0 0 1px rgba(199, 221, 206, 0.8);
       }
       50% {
-        box-shadow: 0 15px 40px -5px rgba(104, 157, 121, 0.35), 0 0 0 1px rgba(104, 157, 121, 0.6);
+        box-shadow: 0 18px 45px -5px rgba(104, 157, 121, 0.28), 0 0 0 1px rgba(104, 157, 121, 0.6);
       }
     }
-
     .agent-active-sage {
-      animation: glowSage 3s ease-in-out infinite;
+      animation: glowSage 3.5s ease-in-out infinite;
     }
 
     @keyframes glowPeriwinkle {
       0%, 100% {
-        box-shadow: 0 10px 30px -10px rgba(115, 134, 213, 0.15), 0 0 0 1px rgba(212, 220, 244, 0.8);
+        box-shadow: 0 10px 30px -10px rgba(115, 134, 213, 0.12), 0 0 0 1px rgba(212, 220, 244, 0.8);
       }
       50% {
-        box-shadow: 0 15px 40px -5px rgba(115, 134, 213, 0.35), 0 0 0 1px rgba(115, 134, 213, 0.6);
+        box-shadow: 0 18px 45px -5px rgba(115, 134, 213, 0.28), 0 0 0 1px rgba(115, 134, 213, 0.6);
       }
     }
-
     .agent-active-periwinkle {
-      animation: glowPeriwinkle 3s ease-in-out infinite;
+      animation: glowPeriwinkle 3.5s ease-in-out infinite;
     }
 
-    /* Radar / Scanner Sweep */
-    @keyframes radarSweep {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .animate-radar {
-      animation: radarSweep 3s linear infinite;
-    }
-
-    /* Printer Stamp / Page Bobbing */
-    @keyframes printerStamp {
-      0%, 100% { transform: translateY(0) scale(1); }
-      30% { transform: translateY(-3px) scale(1.05); }
-      60% { transform: translateY(1px) scale(0.98); }
-    }
-
-    .animate-stamp {
-      animation: printerStamp 2.2s ease-in-out infinite;
-    }
-
-    /* Dynamic Multi-Particle Flow (Conduit Stream) */
+    /* Conduit Stream Flow */
     @keyframes streamFlow {
       0% {
         left: -10%;
@@ -166,47 +130,35 @@
         transform: translate(-50%, -50%) scale(0.4);
       }
     }
-
     .conduit-particle-1 {
       position: absolute;
       top: 50%;
       animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
-
     .conduit-particle-2 {
       position: absolute;
       top: 50%;
-      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.5s;
+      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.55s;
     }
 
-    .conduit-particle-3 {
-      position: absolute;
-      top: 50%;
-      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite 1.0s;
-    }
-
-    /* Animated Dashed Conduit Beam */
     @keyframes dashMove {
       from { stroke-dashoffset: 24; }
       to { stroke-dashoffset: 0; }
     }
-
     .animate-dash {
       stroke-dasharray: 6 6;
       animation: dashMove 1s linear infinite;
     }
 
-    /* Shimmer Sheen Across Progress Bars & Badges */
+    /* Shimmer Light Sheen */
     @keyframes shimmerMove {
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-
     .shimmer-layer {
       position: relative;
       overflow: hidden;
     }
-
     .shimmer-layer::after {
       content: '';
       position: absolute;
@@ -214,66 +166,46 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
       transform: translateX(-100%);
-      animation: shimmerMove 2.2s infinite;
+      animation: shimmerMove 2.4s infinite;
     }
 
     /* Number Pop on Value Update */
     @keyframes numPop {
       0% { transform: scale(1); }
-      40% { transform: scale(1.22); color: #528262; }
+      40% { transform: scale(1.18); }
       100% { transform: scale(1); }
     }
-
     .num-pop {
       animation: numPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* Sliding Employee Name Transition */
-    @keyframes empFadeSlide {
-      0% { opacity: 0; transform: translateY(6px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
-    .emp-slide {
-      animation: empFadeSlide 0.35s ease-out;
-    }
-
-    /* Button Pulse & Spring Click */
+    /* Button Spring & Hover */
     .btn-spring {
       transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .btn-spring:active {
-      transform: scale(0.94);
+      transform: scale(0.95);
     }
     .btn-spring:hover {
       transform: translateY(-2px);
     }
 
-    /* Modal Backdrop Transitions */
-    .modal-backdrop {
-      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .modal-card {
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
     /* Staggered Screen Entrances */
     .slide-in-left {
-      animation: slideLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: slideLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes slideLeft {
-      from { opacity: 0; transform: translateX(-35px) scale(0.96); }
+      from { opacity: 0; transform: translateX(-30px) scale(0.96); }
       to { opacity: 1; transform: translateX(0) scale(1); }
     }
 
     .slide-in-right {
-      animation: slideRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: slideRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes slideRight {
-      from { opacity: 0; transform: translateX(35px) scale(0.96); }
+      from { opacity: 0; transform: translateX(30px) scale(0.96); }
       to { opacity: 1; transform: translateX(0) scale(1); }
     }
   </style>
@@ -325,9 +257,6 @@
       onclick="document.getElementById('fileInput').click()"
       class="bg-white border-2 border-dashed border-sand-200 hover:border-sage-500 rounded-3xl p-10 sm:p-12 text-center cursor-pointer transition-all duration-300 hover:shadow-xl shadow-sm flex flex-col items-center justify-center gap-6 group hover:-translate-y-1 relative overflow-hidden"
     >
-      <!-- Subtle internal shimmer on hover -->
-      <div class="absolute inset-0 bg-gradient-to-tr from-sage-50/30 via-transparent to-periwinkle-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
       <div class="w-20 h-20 rounded-3xl bg-sand-100/90 border border-sand-200/80 flex items-center justify-center text-sand-800 text-3xl shadow-inner group-hover:scale-110 group-hover:bg-sage-100 group-hover:text-sage-700 transition-all duration-300 animate-float">
         <i class="fa-solid fa-arrow-up-from-bracket"></i>
       </div>
@@ -349,27 +278,39 @@
       <input type="file" id="fileInput" accept=".csv, .xlsx, .xlsm, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv" class="hidden" onchange="handleFileSelected(this.files[0])" />
     </div>
 
-    <!-- Preflight Card (Appears after upload) -->
-    <div id="preflightCard" class="hidden bg-white border border-sand-200 rounded-3xl p-7 shadow-lg space-y-5 transition-all duration-400 transform">
-      <div class="flex items-center justify-between pb-4 border-b border-sand-100">
-        <div class="flex items-center gap-2.5">
-          <span id="preflightBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200 flex items-center gap-1.5">
-            <i class="fa-solid fa-check text-[10px]"></i>
-            <span>Valid CSV</span>
-          </span>
-          <span id="preflightFilename" class="text-xs font-bold font-mono text-sand-900">data.csv</span>
+    <!-- Preflight Card (Clean & Perfectly Aligned) -->
+    <div id="preflightCard" class="hidden bg-white border border-sand-200 rounded-3xl p-6 sm:p-7 shadow-lg space-y-5 transition-all duration-400">
+      
+      <!-- Top Row: Status Pill & Stats -->
+      <div class="flex items-center justify-between pb-3 border-b border-sand-100">
+        <span id="preflightBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          <span>Valid Dataset</span>
+        </span>
+        <span id="preflightStats" class="text-xs font-semibold text-sand-800/80 font-mono bg-sand-50 border border-sand-200/80 px-2.5 py-1 rounded-lg">
+          210 records | 113 columns
+        </span>
+      </div>
+
+      <!-- Middle Row: Clean File Info Box -->
+      <div class="bg-sand-50/80 border border-sand-200/80 rounded-2xl px-4 py-3 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-white border border-sand-200 flex items-center justify-center text-sage-700 text-sm shadow-sm flex-shrink-0">
+          <i class="fa-solid fa-file-lines"></i>
         </div>
-        <span id="preflightStats" class="text-xs font-semibold text-sand-800/70 font-mono">210 records | 105 cols</span>
+        <div class="min-w-0 flex-1">
+          <p class="text-[10px] uppercase tracking-wider font-bold text-sand-800/60">Uploaded File</p>
+          <p id="preflightFilename" class="text-xs font-bold font-mono text-sand-900 truncate">data.csv</p>
+        </div>
       </div>
 
       <div id="preflightErrors" class="hidden text-xs text-clay-800 bg-clay-100/90 border border-clay-200 p-4 rounded-2xl space-y-1.5"></div>
 
       <!-- Standard Start Action -->
-      <div id="normalStartAction" class="flex items-center gap-3 pt-1">
+      <div id="normalStartAction" class="pt-1">
         <button 
           id="confirmStartBtn"
           onclick="confirmAndStartPipeline()"
-          class="btn-spring flex-1 bg-sage-600 hover:bg-sage-700 text-white font-bold text-sm py-3.5 px-6 rounded-2xl shadow-md shadow-sage-600/20 flex items-center justify-center gap-2.5 shimmer-layer"
+          class="btn-spring w-full bg-sage-600 hover:bg-sage-700 text-white font-extrabold text-sm py-4 px-6 rounded-2xl shadow-md shadow-sage-600/20 flex items-center justify-center gap-2.5 shimmer-layer"
         >
           <i class="fa-solid fa-play text-xs"></i>
           <span>Initialize &amp; Start Pipeline</span>
@@ -417,7 +358,7 @@
   <div id="agentsView" class="w-full max-w-5xl hidden transition-all duration-500 ease-out space-y-8">
     
     <!-- Top Control Bar -->
-    <div class="flex items-center justify-between bg-white border border-sand-200/80 rounded-3xl px-7 py-4.5 shadow-sm">
+    <div class="flex items-center justify-between bg-white border border-sand-200/80 rounded-3xl px-7 py-4 shadow-sm">
       <div class="flex items-center gap-3.5">
         <span class="relative flex h-3.5 w-3.5">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sage-400 opacity-75"></span>
@@ -449,9 +390,9 @@
     <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
 
       <!-- ========================================= -->
-      <!-- AGENT 1: THE ANALYZER (JSON EXTRACTOR)    -->
+      <!-- AGENT 1: THE ANALYZER                     -->
       <!-- ========================================= -->
-      <div id="agent1Card" class="slide-in-left bg-white border border-sage-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-sage transition-all duration-300 relative overflow-hidden group">
+      <div id="agent1Card" class="slide-in-left bg-white border border-sage-200 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-sage transition-all duration-300">
         
         <!-- Header -->
         <div class="flex items-center justify-between pb-4 border-b border-sage-100">
@@ -471,59 +412,39 @@
           </div>
         </div>
 
-        <!-- Current Employee Focus -->
-        <div class="bg-sage-50/70 border border-sage-200/80 rounded-2xl p-4 flex items-center justify-between shadow-inner">
-          <div class="flex items-center gap-3.5 overflow-hidden">
-            <div class="w-10 h-10 rounded-xl bg-white border border-sage-200 flex-shrink-0 flex items-center justify-center text-sage-800 shadow-sm">
-              <i class="fa-regular fa-user text-sm"></i>
+        <!-- HERO PROGRESS BENTO: Card Background Acts as Animated Progress Fill -->
+        <div class="relative overflow-hidden bg-sand-50/70 border border-sage-200/90 rounded-3xl p-6 sm:p-7 shadow-inner">
+          
+          <!-- Liquid Animated Background Progress Bar -->
+          <div id="agent1ProgressFill" class="absolute inset-y-0 left-0 bg-sage-200/80 transition-all duration-700 ease-out shimmer-layer" style="width: 0%"></div>
+
+          <!-- Content Layer on Top of Progress Background -->
+          <div class="relative z-10 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-sage-800/80">JSON Records Ready</span>
+              <span id="agent1Percent" class="text-xs font-extrabold font-mono text-sage-800 bg-white/90 border border-sage-200 px-2.5 py-1 rounded-xl shadow-sm">
+                0%
+              </span>
             </div>
-            <div class="overflow-hidden">
-              <p class="text-[10px] text-sage-800/70 uppercase tracking-wider font-bold">Active Record</p>
-              <p id="agent1Employee" class="text-sm font-extrabold text-sand-900 mt-0.5 truncate emp-slide">Initializing pipeline...</p>
+
+            <div class="flex items-baseline gap-2">
+              <span id="agent1DoneCount" class="text-4xl font-extrabold font-mono text-sand-900">0</span>
+              <span id="agent1TotalCount" class="text-sm font-mono font-bold text-sand-800/60">/ 0 Records</span>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <p id="agent1LeftCount" class="text-xs text-sage-800 font-bold">0 Left</p>
+              <span class="text-[10px] font-mono text-sage-700/80 uppercase font-semibold">Live Extraction</span>
             </div>
           </div>
         </div>
 
-        <!-- Visual Progress: Done vs Left (Donut Chart) -->
-        <div class="bg-sage-50/70 border border-sage-200/80 rounded-2xl p-5 flex items-center justify-between shadow-inner">
-          <div>
-            <p class="text-xs text-sage-800/70 font-semibold">JSON Records Ready</p>
-            <div class="flex items-baseline gap-1 mt-1.5">
-              <span id="agent1DoneCount" class="text-3xl font-extrabold font-mono text-sand-900">0</span>
-              <span id="agent1TotalCount" class="text-xs font-mono font-semibold text-sand-800/60">/ 0 Records</span>
-            </div>
-            <p id="agent1LeftCount" class="text-xs text-sage-700 font-bold mt-1">0 Left</p>
-          </div>
-
-          <!-- Donut SVG Gauge with Spring Physics -->
-          <div class="relative w-18 h-18 flex items-center justify-center">
-            <svg class="w-18 h-18" viewBox="0 0 36 36">
-              <path class="text-sage-200/80" stroke-width="3.5" stroke="currentColor" fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path id="agent1Donut" class="donut-ring text-sage-600" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <span id="agent1Percent" class="absolute text-xs font-extrabold font-mono text-sage-800">0%</span>
-          </div>
-        </div>
-
-        <!-- Animated Shimmer Progress Bar -->
-        <div class="bg-sage-50/70 border border-sage-200/80 rounded-2xl p-5 space-y-3 shadow-inner">
-          <div class="flex items-center justify-between text-xs text-sage-800/80 font-bold">
-            <span>Extraction Progress</span>
-            <span id="agent1BarPercent" class="font-mono text-sage-700">0%</span>
-          </div>
-          <div class="w-full bg-sage-200/90 rounded-full h-3 overflow-hidden shadow-inner relative">
-            <div id="agent1ProgressBar" class="bg-gradient-to-r from-sage-500 to-sage-600 h-3 rounded-full transition-all duration-500 ease-out shimmer-layer" style="width: 0%"></div>
-          </div>
-        </div>
       </div>
 
       <!-- ========================================= -->
       <!-- CONNECTOR & PASSING ANIMATION CONDUIT     -->
       <!-- ========================================= -->
       <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-10 items-center justify-center z-20 pointer-events-none">
-        
         <!-- Track Base -->
         <svg class="w-full h-4" viewBox="0 0 80 16">
           <line x1="0" y1="8" x2="80" y2="8" stroke="#ded5c2" stroke-width="2" />
@@ -533,18 +454,17 @@
         <!-- Animated Data Beads Traveling from Agent 1 to Agent 2 -->
         <div id="agentPacket1" class="conduit-particle-1 w-4 h-4 rounded-full bg-gradient-to-tr from-sage-500 to-periwinkle-500 border-2 border-white shadow-md"></div>
         <div id="agentPacket2" class="conduit-particle-2 w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-sage-400 to-periwinkle-400 border-2 border-white shadow-md"></div>
-        <div id="agentPacket3" class="conduit-particle-3 w-3 h-3 rounded-full bg-periwinkle-500 border-2 border-white shadow-sm"></div>
       </div>
 
       <!-- ========================================= -->
-      <!-- AGENT 2: THE PRINTER (PDF WORKER)         -->
+      <!-- AGENT 2: THE PRINTER                      -->
       <!-- ========================================= -->
-      <div id="agent2Card" class="slide-in-right bg-white border border-periwinkle-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-periwinkle transition-all duration-300 relative overflow-hidden group">
+      <div id="agent2Card" class="slide-in-right bg-white border border-periwinkle-200 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-periwinkle transition-all duration-300">
         
         <!-- Header -->
         <div class="flex items-center justify-between pb-4 border-b border-periwinkle-100">
           <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-periwinkle-100 border border-periwinkle-200 flex items-center justify-center text-periwinkle-800 text-lg shadow-inner relative animate-stamp">
+            <div class="w-11 h-11 rounded-2xl bg-periwinkle-100 border border-periwinkle-200 flex items-center justify-center text-periwinkle-800 text-lg shadow-inner relative">
               <i class="fa-solid fa-print"></i>
               <div class="absolute -top-1 -right-1 w-3 h-3 bg-periwinkle-500 rounded-full border-2 border-white animate-pulse"></div>
             </div>
@@ -559,52 +479,33 @@
           </div>
         </div>
 
-        <!-- Current PDF Focus -->
-        <div class="bg-periwinkle-50/70 border border-periwinkle-200/80 rounded-2xl p-4 flex items-center justify-between shadow-inner">
-          <div class="flex items-center gap-3.5 overflow-hidden">
-            <div class="w-10 h-10 rounded-xl bg-white border border-periwinkle-200 flex-shrink-0 flex items-center justify-center text-periwinkle-800 shadow-sm">
-              <i class="fa-regular fa-file-pdf text-sm"></i>
+        <!-- HERO PROGRESS BENTO: Card Background Acts as Animated Progress Fill -->
+        <div class="relative overflow-hidden bg-sand-50/70 border border-periwinkle-200/90 rounded-3xl p-6 sm:p-7 shadow-inner">
+          
+          <!-- Liquid Animated Background Progress Bar -->
+          <div id="agent2ProgressFill" class="absolute inset-y-0 left-0 bg-periwinkle-200/80 transition-all duration-700 ease-out shimmer-layer" style="width: 0%"></div>
+
+          <!-- Content Layer on Top of Progress Background -->
+          <div class="relative z-10 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-periwinkle-800/80">PDFs Rendered</span>
+              <span id="agent2Percent" class="text-xs font-extrabold font-mono text-periwinkle-800 bg-white/90 border border-periwinkle-200 px-2.5 py-1 rounded-xl shadow-sm">
+                0%
+              </span>
             </div>
-            <div class="overflow-hidden">
-              <p class="text-[10px] text-periwinkle-800/70 uppercase tracking-wider font-bold">Compiling PDF</p>
-              <p id="agent2Employee" class="text-sm font-extrabold text-sand-900 mt-0.5 truncate emp-slide">Waiting for queue...</p>
+
+            <div class="flex items-baseline gap-2">
+              <span id="agent2DoneCount" class="text-4xl font-extrabold font-mono text-sand-900">0</span>
+              <span id="agent2TotalCount" class="text-sm font-mono font-bold text-sand-800/60">/ 0 Done</span>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <p id="agent2LeftCount" class="text-xs text-periwinkle-800 font-bold">0 Left</p>
+              <span class="text-[10px] font-mono text-periwinkle-700/80 uppercase font-semibold">Headless PDF Buffer</span>
             </div>
           </div>
         </div>
 
-        <!-- Visual Progress: Done vs Left (Donut Chart) -->
-        <div class="bg-periwinkle-50/70 border border-periwinkle-200/80 rounded-2xl p-5 flex items-center justify-between shadow-inner">
-          <div>
-            <p class="text-xs text-periwinkle-800/70 font-semibold">PDFs Rendered</p>
-            <div class="flex items-baseline gap-1 mt-1.5">
-              <span id="agent2DoneCount" class="text-3xl font-extrabold font-mono text-sand-900">0</span>
-              <span id="agent2TotalCount" class="text-xs font-mono font-semibold text-sand-800/60">/ 0 Done</span>
-            </div>
-            <p id="agent2LeftCount" class="text-xs text-periwinkle-700 font-bold mt-1">0 Left</p>
-          </div>
-
-          <!-- Donut SVG Gauge with Spring Physics -->
-          <div class="relative w-18 h-18 flex items-center justify-center">
-            <svg class="w-18 h-18" viewBox="0 0 36 36">
-              <path class="text-periwinkle-200/80" stroke-width="3.5" stroke="currentColor" fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path id="agent2Donut" class="donut-ring text-periwinkle-600" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <span id="agent2Percent" class="absolute text-xs font-extrabold font-mono text-periwinkle-800">0%</span>
-          </div>
-        </div>
-
-        <!-- Animated Shimmer Progress Bar -->
-        <div class="bg-periwinkle-50/70 border border-periwinkle-200/80 rounded-2xl p-5 space-y-3 shadow-inner">
-          <div class="flex items-center justify-between text-xs text-periwinkle-800/80 font-bold">
-            <span>PDF Render Progress</span>
-            <span id="agent2BarPercent" class="font-mono text-periwinkle-700">0%</span>
-          </div>
-          <div class="w-full bg-periwinkle-200/90 rounded-full h-3 overflow-hidden shadow-inner relative">
-            <div id="agent2ProgressBar" class="bg-gradient-to-r from-periwinkle-500 to-periwinkle-600 h-3 rounded-full transition-all duration-500 ease-out shimmer-layer" style="width: 0%"></div>
-          </div>
-        </div>
       </div>
 
     </div>
@@ -663,17 +564,15 @@
   </div>
 
   <!-- ======================================================= -->
-  <!-- MODAL: COMPLETED POPUP WITH SPRING SCALE & CELEBRATION -->
+  <!-- MODAL: COMPLETED POPUP                                  -->
   <!-- ======================================================= -->
   <div id="completedModal" onclick="if(event.target === this) closeCompletedModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 modal-backdrop opacity-0">
     <div id="completedCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-90 modal-card space-y-6">
       
-      <!-- Minimalist Animated Check Icon -->
       <div class="mx-auto w-18 h-18 rounded-3xl bg-sage-100 border border-sage-200 flex items-center justify-center text-sage-600 text-3xl shadow-inner animate-float">
         <i class="fa-solid fa-check"></i>
       </div>
 
-      <!-- Title & Message -->
       <div class="space-y-1.5">
         <h2 class="text-2xl font-extrabold tracking-tight text-sand-900">Completed!</h2>
         <p id="completedModalMessage" class="text-xs text-sand-800/70 leading-relaxed font-medium">
@@ -681,7 +580,6 @@
         </p>
       </div>
 
-      <!-- Action Buttons -->
       <div class="space-y-2.5 pt-2">
         <a 
           href="/api/download-all" 
@@ -720,17 +618,15 @@
   </div>
 
   <!-- ======================================================= -->
-  <!-- MODAL: START NEW BATCH (DUAL CLEANUP & BACKUP MODAL)    -->
+  <!-- MODAL: START NEW BATCH                                  -->
   <!-- ======================================================= -->
   <div id="newBatchModal" onclick="if(event.target === this) closeNewBatchModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 modal-backdrop opacity-0">
     <div id="newBatchCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-90 modal-card space-y-6">
       
-      <!-- Refresh Icon -->
       <div class="mx-auto w-16 h-16 rounded-3xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-2xl shadow-inner animate-float">
         <i class="fa-solid fa-arrows-rotate"></i>
       </div>
 
-      <!-- Title & Explanation -->
       <div class="space-y-1.5">
         <h2 id="newBatchModalTitle" class="text-2xl font-extrabold tracking-tight text-sand-900">Start a New Batch</h2>
         <p id="newBatchModalDesc" class="text-xs text-sand-800/70 leading-relaxed font-medium">
@@ -738,7 +634,6 @@
         </p>
       </div>
 
-      <!-- Action Options -->
       <div class="space-y-2.5 pt-2">
         <button 
           id="backupAndResetBtn"
@@ -816,7 +711,7 @@
   </div>
 
   <!-- ======================================================= -->
-  <!-- CLIENT LOGIC & REACTIVE ANIMATION TRIGGERS              -->
+  <!-- CLIENT LOGIC                                            -->
   <!-- ======================================================= -->
   <script>
     let eventSource = null;
@@ -827,7 +722,6 @@
     let existingPdfCount = 0;
     let pendingStartPipeline = false;
 
-    // Previous record counts to detect changes for pop animation
     let lastA1Done = -1;
     let lastA2Done = -1;
 
@@ -1161,25 +1055,19 @@
       document.getElementById("agent2StatusBadge").innerHTML = '<i class="fa-solid fa-circle text-[8px] text-sand-400"></i><span>Waiting</span>';
       document.getElementById("stopBtn").style.display = "flex";
       document.getElementById("globalTimer").textContent = "00:00";
-      document.getElementById("agent1Employee").textContent = "Waiting for queue...";
-      document.getElementById("agent2Employee").textContent = "Waiting for queue...";
 
-      // Reset progress counters & meters
+      // Reset progress counters & background fills
       document.getElementById("agent1DoneCount").textContent = "0";
       document.getElementById("agent1TotalCount").textContent = "/ 0 Records";
       document.getElementById("agent1LeftCount").textContent = "0 Left";
       document.getElementById("agent1Percent").textContent = "0%";
-      document.getElementById("agent1BarPercent").textContent = "0%";
-      document.getElementById("agent1ProgressBar").style.width = "0%";
-      updateDonut("agent1Donut", 0);
+      document.getElementById("agent1ProgressFill").style.width = "0%";
 
       document.getElementById("agent2DoneCount").textContent = "0";
       document.getElementById("agent2TotalCount").textContent = "/ 0 Done";
       document.getElementById("agent2LeftCount").textContent = "0 Left";
       document.getElementById("agent2Percent").textContent = "0%";
-      document.getElementById("agent2BarPercent").textContent = "0%";
-      document.getElementById("agent2ProgressBar").style.width = "0%";
-      updateDonut("agent2Donut", 0);
+      document.getElementById("agent2ProgressFill").style.width = "0%";
 
       // Reset file input & preflight
       const fileInput = document.getElementById("fileInput");
@@ -1274,7 +1162,7 @@
       const p1 = Math.min(100, Math.round((jsonReady / total) * 100));
       const p2 = Math.min(100, Math.round((pdfReady / total) * 100));
 
-      // Agent 1 Updates with reactive Pop Animation
+      // Agent 1 Updates
       const a1CountEl = document.getElementById("agent1DoneCount");
       if (jsonReady !== lastA1Done) {
         lastA1Done = jsonReady;
@@ -1285,11 +1173,9 @@
       document.getElementById("agent1TotalCount").textContent = `/ ${total} Records`;
       document.getElementById("agent1LeftCount").textContent = `${Math.max(0, total - jsonReady)} Left`;
       document.getElementById("agent1Percent").textContent = `${p1}%`;
-      document.getElementById("agent1BarPercent").textContent = `${p1}%`;
-      document.getElementById("agent1ProgressBar").style.width = `${p1}%`;
-      updateDonut("agent1Donut", p1);
+      document.getElementById("agent1ProgressFill").style.width = `${p1}%`;
 
-      // Agent 2 Updates with reactive Pop Animation
+      // Agent 2 Updates
       const a2CountEl = document.getElementById("agent2DoneCount");
       if (pdfReady !== lastA2Done) {
         lastA2Done = pdfReady;
@@ -1300,9 +1186,7 @@
       document.getElementById("agent2TotalCount").textContent = `/ ${total} Done`;
       document.getElementById("agent2LeftCount").textContent = `${Math.max(0, total - pdfReady)} Left`;
       document.getElementById("agent2Percent").textContent = `${p2}%`;
-      document.getElementById("agent2BarPercent").textContent = `${p2}%`;
-      document.getElementById("agent2ProgressBar").style.width = `${p2}%`;
-      updateDonut("agent2Donut", p2);
+      document.getElementById("agent2ProgressFill").style.width = `${p2}%`;
 
       if (st.state === "completed") {
         clearInterval(timerInterval);
@@ -1321,13 +1205,6 @@
       }
     }
 
-    function updateDonut(id, percent) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const offset = 100 - percent;
-      el.style.strokeDashoffset = offset;
-    }
-
     function appendLog(log) {
       const box = document.getElementById("logContent");
       const div = document.createElement("div");
@@ -1335,22 +1212,6 @@
       div.textContent = `[${log.time}] [${log.level.toUpperCase()}] ${log.message}`;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
-
-      if (log.message.includes("[Agent 1]")) {
-        const nameText = log.message.replace("[Agent 1]", "").trim();
-        const emp1 = document.getElementById("agent1Employee");
-        emp1.textContent = nameText;
-        emp1.classList.remove("emp-slide");
-        void emp1.offsetWidth;
-        emp1.classList.add("emp-slide");
-      } else if (log.message.includes("[Agent 2]")) {
-        const nameText = log.message.replace("[Agent 2]", "").trim();
-        const emp2 = document.getElementById("agent2Employee");
-        emp2.textContent = nameText;
-        emp2.classList.remove("emp-slide");
-        void emp2.offsetWidth;
-        emp2.classList.add("emp-slide");
-      }
     }
 
     function toggleLogDrawer() {
