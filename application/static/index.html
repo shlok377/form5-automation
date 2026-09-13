@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORM-5 Orchestration Dashboard</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#fbf9f5',
+            sand: {
+              50: '#fdfbf7',
+              100: '#f7f4ed',
+              200: '#eee8dc',
+              300: '#ded5c2',
+              800: '#443f35',
+              900: '#2b271f',
+            },
+            sage: {
+              50: '#f2f7f4',
+              100: '#e3eee7',
+              200: '#c7ddce',
+              500: '#689d79',
+              600: '#528262',
+              800: '#2f4f39',
+            },
+            periwinkle: {
+              50: '#f4f6fc',
+              100: '#e8ecf9',
+              200: '#d4dcf4',
+              500: '#7386d5',
+              600: '#5c6fc4',
+              800: '#344079',
+            },
+            clay: {
+              100: '#fde8e2',
+              200: '#f8d5cc',
+              500: '#e07a5f',
+              600: '#c9654b',
+              800: '#7e3725',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    .donut-ring {
+      transition: stroke-dashoffset 0.5s ease;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    @keyframes softPacketFlow {
+      0% {
+        left: 0%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+      20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        left: 100%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+    }
+
+    .animate-soft-packet {
+      position: absolute;
+      top: 50%;
+      animation: softPacketFlow 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-sand-900 font-sans min-h-screen flex flex-col items-center justify-center p-6 antialiased">
+
+  <!-- SCREEN 1: UPLOAD & PREFLIGHT BENTO BOX -->
+  <div id="uploadBox" class="w-full max-w-xl transition-all duration-500 ease-out space-y-6">
+    <div 
+      id="dropZone"
+      onclick="document.getElementById('fileInput').click()"
+      class="bg-white border-2 border-dashed border-sand-200 hover:border-sand-300 rounded-3xl p-10 text-center cursor-pointer transition-all duration-300 hover:shadow-lg shadow-sm flex flex-col items-center justify-center gap-5"
+    >
+      <div class="w-16 h-16 rounded-2xl bg-sand-100 border border-sand-200 flex items-center justify-center text-sand-800 text-2xl">
+        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+      </div>
+      
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-sand-900">Upload Health Data CSV</h1>
+        <p class="text-sm text-sand-800/70 mt-1">Click to select file or drag & drop CSV here</p>
+      </div>
+
+      <input type="file" id="fileInput" accept=".csv" class="hidden" onchange="handleFileSelected(this.files[0])" />
+    </div>
+
+    <!-- Quick action: Process Existing CSV -->
+    <div class="bg-white border border-sand-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sage-50 border border-sage-200 flex items-center justify-center text-sage-600">
+          <i class="fa-solid fa-database text-sm"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-sand-900">Use Existing Dataset</p>
+          <p class="text-xs text-sand-800/70">Execute pipeline using current <code class="font-mono text-sand-900">data/data.csv</code></p>
+        </div>
+      </div>
+      <button 
+        onclick="startWithExistingData()"
+        class="bg-sage-600 hover:bg-sage-800 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2"
+      >
+        <span>Run Pipeline</span>
+        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </button>
+    </div>
+
+    <!-- Preflight Card (Appears after upload) -->
+    <div id="preflightCard" class="hidden bg-white border border-sand-200 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-sand-100">
+        <div class="flex items-center gap-2">
+          <span id="preflightBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200">Valid CSV</span>
+          <span id="preflightFilename" class="text-xs font-semibold text-sand-800">data.csv</span>
+        </div>
+        <span id="preflightStats" class="text-xs font-medium text-sand-800/70">210 records | 105 cols</span>
+      </div>
+
+      <div id="preflightErrors" class="hidden text-xs text-clay-800 bg-clay-100 border border-clay-200 p-3 rounded-xl space-y-1"></div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button 
+          id="confirmStartBtn"
+          onclick="confirmAndStartPipeline()"
+          class="flex-1 bg-sage-600 hover:bg-sage-800 text-white font-bold text-sm py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-play text-xs"></i>
+          <span>Confirm & Start Pipeline</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: THE TWO AGENTS VIEW -->
+  <div id="agentsView" class="w-full max-w-5xl hidden transition-all duration-500 ease-out space-y-8">
+    
+    <!-- Top Control Bar -->
+    <div class="flex items-center justify-between bg-white border border-sand-200 rounded-2xl px-6 py-4 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-3 h-3 rounded-full bg-sage-500 animate-pulse"></div>
+        <span class="text-sm font-bold text-sand-900 tracking-tight">Pipeline Active</span>
+        <span id="globalTimer" class="text-xs font-mono bg-sand-100 text-sand-800 px-2 py-0.5 rounded-md border border-sand-200">00:00</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button 
+          onclick="stopPipeline()" 
+          id="stopBtn"
+          class="text-xs font-semibold text-clay-600 hover:text-clay-800 bg-clay-100 hover:bg-clay-200 border border-clay-200 px-3 py-1.5 rounded-lg transition-all"
+        >
+          <i class="fa-solid fa-stop text-[10px] mr-1"></i> Stop
+        </button>
+        <button 
+          onclick="toggleLogDrawer()" 
+          class="text-xs font-semibold text-sand-800 bg-sand-100 hover:bg-sand-200 border border-sand-200 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-terminal text-[10px]"></i> Live Logs
+        </button>
+      </div>
+    </div>
+
+    <!-- Agent Cards Grid -->
+    <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
+
+      <!-- AGENT 1: THE ANALYZER (JSON EXTRACTOR) -->
+      <div class="bg-white border border-sage-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-sage-100">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-sage-100 border border-sage-200 flex items-center justify-center text-sage-800 text-sm">
+              <i class="fa-solid fa-chart-simple"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-sand-900">Agent 1: The Analyzer</h2>
+              <p class="text-[11px] text-sage-800/70 font-medium">Data Extraction & Clinical Evaluation</p>
+            </div>
+          </div>
+          <div id="agent1StatusBadge" class="flex items-center gap-2 text-xs text-sage-600 font-semibold bg-sage-50 px-3 py-1 rounded-full border border-sage-200">
+            <i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>
+            <span id="agent1Activity">Extracting</span>
+          </div>
+        </div>
+
+        <div class="bg-sage-50/60 border border-sage-100 rounded-2xl p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-sage-200 flex items-center justify-center text-sage-800">
+              <i class="fa-regular fa-user text-sm"></i>
+            </div>
+            <div class="overflow-hidden">
+              <p class="text-[11px] text-sage-800/70 uppercase tracking-wider font-semibold">Current Record</p>
+              <p id="agent1Employee" class="text-sm font-bold text-sand-900 mt-0.5 truncate">Initializing...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-sage-50/60 border border-sage-100 rounded-2xl p-5 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-sage-800/70 font-medium">JSONs Ready</p>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span id="agent1DoneCount" class="text-2xl font-bold text-sand-900">0</span>
+              <span id="agent1TotalCount" class="text-xs text-sage-800/70">/ 0 Records</span>
+            </div>
+            <p id="agent1LeftCount" class="text-xs text-sage-600 font-medium mt-1">0 Left</p>
+          </div>
+
+          <div class="relative w-16 h-16 flex items-center justify-center">
+            <svg class="w-16 h-16" viewBox="0 0 36 36">
+              <path class="text-sage-100" stroke-width="3.5" stroke="currentColor" fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path id="agent1Donut" class="donut-ring text-sage-500" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <span id="agent1Percent" class="absolute text-xs font-bold text-sage-800">0%</span>
+          </div>
+        </div>
+
+        <div class="bg-sage-50/60 border border-sage-100 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between text-xs text-sage-800/70">
+            <span class="font-medium">Clinical Evaluation</span>
+            <span id="agent1StepLabel" class="text-sage-800 font-bold">Section F Evaluator</span>
+          </div>
+          <div class="w-full bg-sage-200 rounded-full h-2 overflow-hidden">
+            <div id="agent1ProgressBar" class="bg-sage-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONNECTOR & PASSING ANIMATION -->
+      <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-8 items-center justify-center z-10 pointer-events-none">
+        <div class="w-full h-0.5 bg-sand-200"></div>
+        <div id="agentPacket" class="animate-soft-packet w-3.5 h-3.5 rounded-full bg-periwinkle-500 border-2 border-white shadow-sm"></div>
+      </div>
+
+      <!-- AGENT 2: THE PRINTER (PDF WORKER) -->
+      <div class="bg-white border border-periwinkle-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-periwinkle-100">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-periwinkle-100 border border-periwinkle-200 flex items-center justify-center text-periwinkle-800 text-sm">
+              <i class="fa-solid fa-print"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-sand-900">Agent 2: The Printer</h2>
+              <p class="text-[11px] text-periwinkle-800/70 font-medium">Headless Chromium 4-Page PDF Engine</p>
+            </div>
+          </div>
+          <div id="agent2StatusBadge" class="flex items-center gap-2 text-xs text-periwinkle-600 font-semibold bg-periwinkle-50 px-3 py-1 rounded-full border border-periwinkle-200">
+            <i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>
+            <span id="agent2Activity">Rendering</span>
+          </div>
+        </div>
+
+        <div class="bg-periwinkle-50/60 border border-periwinkle-100 rounded-2xl p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-periwinkle-200 flex items-center justify-center text-periwinkle-800">
+              <i class="fa-regular fa-file-pdf text-sm"></i>
+            </div>
+            <div class="overflow-hidden">
+              <p class="text-[11px] text-periwinkle-800/70 uppercase tracking-wider font-semibold">Current PDF</p>
+              <p id="agent2Employee" class="text-sm font-bold text-sand-900 mt-0.5 truncate">Waiting for queue...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-periwinkle-50/60 border border-periwinkle-100 rounded-2xl p-5 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-periwinkle-800/70 font-medium">PDFs Rendered</p>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span id="agent2DoneCount" class="text-2xl font-bold text-sand-900">0</span>
+              <span id="agent2TotalCount" class="text-xs text-periwinkle-800/70">/ 0 Done</span>
+            </div>
+            <p id="agent2LeftCount" class="text-xs text-periwinkle-600 font-medium mt-1">0 Left</p>
+          </div>
+
+          <div class="relative w-16 h-16 flex items-center justify-center">
+            <svg class="w-16 h-16" viewBox="0 0 36 36">
+              <path class="text-periwinkle-100" stroke-width="3.5" stroke="currentColor" fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path id="agent2Donut" class="donut-ring text-periwinkle-500" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <span id="agent2Percent" class="absolute text-xs font-bold text-periwinkle-800">0%</span>
+          </div>
+        </div>
+
+        <div class="bg-periwinkle-50/60 border border-periwinkle-100 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between text-xs text-periwinkle-800/70">
+            <span class="font-medium">4-Page Document Assembly</span>
+            <span id="agent2StepLabel" class="text-periwinkle-800 font-bold">100% Full-Width Header</span>
+          </div>
+          <div class="w-full bg-periwinkle-200 rounded-full h-2 overflow-hidden">
+            <div id="agent2ProgressBar" class="bg-periwinkle-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Completed Action Bar -->
+    <div id="completedBanner" class="hidden bg-white border border-sage-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-sage-100 text-sage-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-sand-900">Pipeline Finished Successfully!</h3>
+          <p id="completionSummary" class="text-xs text-sand-800/70 mt-0.5">All 210 employee PDFs ready in output/</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a 
+          href="/api/download-all" 
+          download 
+          class="bg-sand-100 hover:bg-sand-200 border border-sand-300 text-sand-900 font-bold text-xs px-4 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2"
+        >
+          <i class="fa-solid fa-file-zipper text-sm"></i>
+          <span>Download All (.ZIP)</span>
+        </a>
+        <button 
+          onclick="loadRecordsModal()" 
+          class="bg-sage-600 hover:bg-sage-800 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2"
+        >
+          <i class="fa-solid fa-list-check"></i>
+          <span>Browse Records</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Console Drawer -->
+    <div id="logDrawer" class="bg-sand-900 text-sand-100 rounded-3xl p-6 shadow-md space-y-3 hidden">
+      <div class="flex items-center justify-between border-b border-sand-800 pb-3">
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-sand-300">Live Orchestration Logs</span>
+        <button onclick="toggleLogDrawer()" class="text-xs text-sand-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="logContent" class="h-44 overflow-y-auto font-mono text-xs space-y-1 pr-2 text-sand-200">
+        <div>[System] Ready.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL: RECORDS BROWSER & DOWNLOADS -->
+  <div id="recordsModal" class="hidden fixed inset-0 bg-sand-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-sand-200 overflow-hidden">
+      
+      <div class="p-6 border-b border-sand-100 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-sand-900">Generated Employee Records</h2>
+          <p class="text-xs text-sand-800/70 mt-0.5">Direct HTML previews and print-ready PDF downloads</p>
+        </div>
+        <button onclick="closeRecordsModal()" class="w-8 h-8 rounded-full bg-sand-100 hover:bg-sand-200 flex items-center justify-center text-sand-800">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div class="px-6 py-3 border-b border-sand-100 bg-sand-50/50">
+        <input 
+          type="text" 
+          id="recordSearch" 
+          placeholder="Search by Employee Code or Name..." 
+          oninput="filterRecords(this.value)"
+          class="w-full bg-white border border-sand-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-sage-500"
+        />
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-6">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="text-[11px] font-bold uppercase tracking-wider text-sand-800/60 border-b border-sand-100">
+              <th class="pb-3">#</th>
+              <th class="pb-3">Code</th>
+              <th class="pb-3">Name</th>
+              <th class="pb-3">Designation</th>
+              <th class="pb-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody" class="text-xs divide-y divide-sand-100">
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    let eventSource = null;
+    let timerInterval = null;
+    let startTime = null;
+    let allRecords = [];
+
+    const dropZone = document.getElementById("dropZone");
+    ['dragenter', 'dragover'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.add("border-sage-500", "bg-sage-50/40");
+      });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("border-sage-500", "bg-sage-50/40");
+      });
+    });
+    dropZone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length) {
+        handleFileSelected(e.dataTransfer.files[0]);
+      }
+    });
+
+    async function handleFileSelected(file) {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/upload-preflight", {
+          method: "POST",
+          body: formData
+        });
+        const report = await res.json();
+        renderPreflight(report);
+      } catch (err) {
+        alert("Preflight check failed: " + err.message);
+      }
+    }
+
+    function renderPreflight(report) {
+      const card = document.getElementById("preflightCard");
+      const badge = document.getElementById("preflightBadge");
+      const filenameEl = document.getElementById("preflightFilename");
+      const statsEl = document.getElementById("preflightStats");
+      const errBox = document.getElementById("preflightErrors");
+      const btn = document.getElementById("confirmStartBtn");
+
+      card.classList.remove("hidden");
+      filenameEl.textContent = report.filename || "data.csv";
+      statsEl.textContent = `${report.total_rows} records | ${report.total_columns} columns`;
+
+      if (report.valid) {
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200";
+        badge.textContent = "Valid CSV";
+        errBox.classList.add("hidden");
+        btn.disabled = false;
+        btn.classList.remove("opacity-50", "cursor-not-allowed");
+      } else {
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-clay-100 text-clay-800 border border-clay-200";
+        badge.textContent = "Errors Detected";
+        errBox.classList.remove("hidden");
+        errBox.innerHTML = report.errors.map(e => `<div>• ${e}</div>`).join("");
+        btn.disabled = true;
+        btn.classList.add("opacity-50", "cursor-not-allowed");
+      }
+    }
+
+    async function confirmAndStartPipeline() {
+      try {
+        const confirmRes = await fetch("/api/confirm-csv", { method: "POST" });
+        const confirmData = await confirmRes.json();
+        if (!confirmData.success) {
+          alert("Error confirming CSV: " + confirmData.error);
+          return;
+        }
+        startPipelineExecution(true);
+      } catch (err) {
+        alert("Network error: " + err.message);
+      }
+    }
+
+    async function startWithExistingData() {
+      startPipelineExecution(false);
+    }
+
+    async function startPipelineExecution(force = false) {
+      const uploadBox = document.getElementById("uploadBox");
+      const agentsView = document.getElementById("agentsView");
+
+      uploadBox.style.opacity = "0";
+      uploadBox.style.transform = "scale(0.95)";
+
+      setTimeout(() => {
+        uploadBox.classList.add("hidden");
+        agentsView.classList.remove("hidden");
+        agentsView.style.opacity = "1";
+      }, 350);
+
+      startTime = Date.now();
+      timerInterval = setInterval(updateTimer, 1000);
+
+      await fetch("/api/pipeline/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ force: force, workers: 8 })
+      });
+
+      connectSSE();
+    }
+
+    function updateTimer() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const s = String(elapsed % 60).padStart(2, '0');
+      document.getElementById("globalTimer").textContent = `${m}:${s}`;
+    }
+
+    function connectSSE() {
+      if (eventSource) eventSource.close();
+      eventSource = new EventSource("/api/pipeline/events");
+
+      eventSource.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === "init" || msg.type === "progress") {
+            handleProgressUpdate(msg.data);
+          } else if (msg.type === "log") {
+            appendLog(msg.data);
+          }
+        } catch (err) {
+          console.error("SSE parse error", err);
+        }
+      };
+
+      eventSource.onerror = () => {
+        console.warn("SSE connection interrupted");
+      };
+    }
+
+    function handleProgressUpdate(st) {
+      const total = st.total_records || 1;
+      const jsonReady = st.json_total_ready || 0;
+      const pdfReady = st.pdf_total_ready || 0;
+
+      const p1 = Math.min(100, Math.round((jsonReady / total) * 100));
+      const p2 = Math.min(100, Math.round((pdfReady / total) * 100));
+
+      document.getElementById("agent1DoneCount").textContent = jsonReady;
+      document.getElementById("agent1TotalCount").textContent = `/ ${total} Records`;
+      document.getElementById("agent1LeftCount").textContent = `${Math.max(0, total - jsonReady)} Left`;
+      document.getElementById("agent1Percent").textContent = `${p1}%`;
+      document.getElementById("agent1ProgressBar").style.width = `${p1}%`;
+      updateDonut("agent1Donut", p1);
+
+      document.getElementById("agent2DoneCount").textContent = pdfReady;
+      document.getElementById("agent2TotalCount").textContent = `/ ${total} Done`;
+      document.getElementById("agent2LeftCount").textContent = `${Math.max(0, total - pdfReady)} Left`;
+      document.getElementById("agent2Percent").textContent = `${p2}%`;
+      document.getElementById("agent2ProgressBar").style.width = `${p2}%`;
+      updateDonut("agent2Donut", p2);
+
+      if (st.state === "completed") {
+        clearInterval(timerInterval);
+        document.getElementById("agent1StatusBadge").innerHTML = '<i class="fa-solid fa-check text-sage-600"></i><span>Done</span>';
+        document.getElementById("agent2StatusBadge").innerHTML = '<i class="fa-solid fa-check text-periwinkle-600"></i><span>Done</span>';
+        document.getElementById("agentPacket").style.display = "none";
+        document.getElementById("stopBtn").style.display = "none";
+        
+        const banner = document.getElementById("completedBanner");
+        banner.classList.remove("hidden");
+        document.getElementById("completionSummary").textContent = `100% of ${pdfReady} print-ready PDFs verified and ready in output/`;
+      }
+    }
+
+    function updateDonut(id, percent) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const offset = 100 - percent;
+      el.style.strokeDashoffset = offset;
+    }
+
+    function appendLog(log) {
+      const box = document.getElementById("logContent");
+      const div = document.createElement("div");
+      div.className = log.level === "error" ? "text-clay-500" : log.level === "warn" ? "text-sand-300" : "text-sand-200";
+      div.textContent = `[${log.time}] [${log.level.toUpperCase()}] ${log.message}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+
+      if (log.message.includes("[Agent 1]")) {
+        document.getElementById("agent1Employee").textContent = log.message.replace("[Agent 1]", "").trim();
+      } else if (log.message.includes("[Agent 2]")) {
+        document.getElementById("agent2Employee").textContent = log.message.replace("[Agent 2]", "").trim();
+      }
+    }
+
+    function toggleLogDrawer() {
+      const d = document.getElementById("logDrawer");
+      d.classList.toggle("hidden");
+    }
+
+    async function stopPipeline() {
+      if (confirm("Are you sure you want to stop the current pipeline?")) {
+        await fetch("/api/pipeline/stop", { method: "POST" });
+      }
+    }
+
+    async function loadRecordsModal() {
+      const modal = document.getElementById("recordsModal");
+      modal.classList.remove("hidden");
+
+      const res = await fetch("/api/records");
+      const data = await res.json();
+      allRecords = data.records || [];
+      renderRecordsTable(allRecords);
+    }
+
+    function closeRecordsModal() {
+      document.getElementById("recordsModal").classList.add("hidden");
+    }
+
+    function renderRecordsTable(records) {
+      const tbody = document.getElementById("recordsTableBody");
+      tbody.innerHTML = records.map(r => `
+        <tr class="hover:bg-sand-50/80 transition-colors">
+          <td class="py-2.5 font-mono text-sand-800/60">${r.row}</td>
+          <td class="py-2.5 font-mono font-bold text-sand-900">${r.code}</td>
+          <td class="py-2.5 font-medium text-sand-900">${r.name}</td>
+          <td class="py-2.5 text-sand-800/70">${r.designation || '-'}</td>
+          <td class="py-2.5 text-right space-x-2">
+            ${r.json_file ? `
+              <a href="/api/preview/${r.json_file}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-semibold text-sage-600 hover:text-sage-800 bg-sage-50 hover:bg-sage-100 border border-sage-200 px-2.5 py-1 rounded-lg transition-all">
+                <i class="fa-solid fa-eye text-[10px]"></i> View
+              </a>
+            ` : ''}
+            ${r.pdf_file ? `
+              <a href="/api/pdf/${r.pdf_file}" download class="inline-flex items-center gap-1 text-[11px] font-semibold text-periwinkle-600 hover:text-periwinkle-800 bg-periwinkle-50 hover:bg-periwinkle-100 border border-periwinkle-200 px-2.5 py-1 rounded-lg transition-all">
+                <i class="fa-solid fa-download text-[10px]"></i> PDF
+              </a>
+            ` : ''}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function filterRecords(query) {
+      const q = query.toLowerCase().trim();
+      const filtered = allRecords.filter(r => 
+        r.code.toLowerCase().includes(q) || 
+        r.name.toLowerCase().includes(q) || 
+        (r.designation && r.designation.toLowerCase().includes(q))
+      );
+      renderRecordsTable(filtered);
+    }
+  </script>
+</body>
+</html>

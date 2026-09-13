@@ -1,0 +1,45 @@
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.tmp
+
+# Sensitive Employee Health & Medical Records (CONFIDENTIAL)
+data/*.csv
+data/*.xlsx
+data/*.bak
+data/.uploaded_pending.csv
+!data/.gitkeep
+temp_json/*.json
+temp_json/failed_records.json
+!temp_json/.gitkeep
+output/*.pdf
+output/*.zip
+output/.*.tmp
+output/.*.zip
+!output/.gitkeep
+
+# Temporary Raw Medical Files
+temp.pdf
+temp2.pdf
+temp.xlsx
+
+# System & Editor Settings
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# API Keys and Secrets (NEVER COMMIT)
+github_key.txt
+*.key
+*.token
+.env
+.env.*

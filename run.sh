@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# FORM-5 Master Launcher
+# ==============================================================================
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}"
+
+# Determine Python binary (.venv preferred)
+if [ -x "${SCRIPT_DIR}/.venv/bin/python3" ]; then
+    PYTHON_BIN="${SCRIPT_DIR}/.venv/bin/python3"
+elif command -v python3 &> /dev/null; then
+    PYTHON_BIN="python3"
+else
+    echo "Error: Python 3 not found. Please run ./install.sh first."
+    exit 1
+fi
+
+if [ "$1" = "--cli" ] || [ "$1" = "-c" ] || [ "$1" = "--batch" ]; then
+    shift
+    echo "Starting FORM-5 Batch Generation Pipeline via CLI..."
+    exec "${PYTHON_BIN}" application/pipeline.py --workers 8 "$@"
+elif [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
+    exec "${PYTHON_BIN}" application/pipeline.py --status
+elif [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    echo "Usage: ./run.sh [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  (no args)           Start the Web Dashboard server on http://localhost:8080"
+    echo "  --cli, -c           Run the parallel batch PDF pipeline via CLI"
+    echo "  --status, -s        Display current pipeline execution status"
+    echo "  PORT                Start the Web Dashboard on a specific port (e.g. ./run.sh 9000)"
+    echo "  --help, -h          Show this help message"
+    exit 0
+else
+    PORT="${1:-8080}"
+    echo "Starting FORM-5 Dashboard Server on http://localhost:${PORT}..."
+    echo "Press Ctrl+C to stop the server."
+    echo ""
+    exec "${PYTHON_BIN}" application/server.py "${PORT}"
+fi
