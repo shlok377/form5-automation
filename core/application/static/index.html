@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FORM-5 Orchestration Dashboard</title>
+  <title>FORM-5 Medical Pipeline</title>
   
-  <!-- Google Fonts: Plus Jakarta Sans -->
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- Canvas Confetti for Celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,6 +21,7 @@
         extend: {
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
           },
           colors: {
             canvas: '#fbf9f5',
@@ -26,6 +30,7 @@
               100: '#f7f4ed',
               200: '#eee8dc',
               300: '#ded5c2',
+              400: '#9e9584',
               800: '#443f35',
               900: '#2b271f',
             },
@@ -33,19 +38,24 @@
               50: '#f2f7f4',
               100: '#e3eee7',
               200: '#c7ddce',
+              300: '#a1c4ab',
               500: '#689d79',
               600: '#528262',
+              700: '#3e654b',
               800: '#2f4f39',
             },
             periwinkle: {
               50: '#f4f6fc',
               100: '#e8ecf9',
               200: '#d4dcf4',
+              300: '#b2c0ec',
               500: '#7386d5',
               600: '#5c6fc4',
+              700: '#4858a8',
               800: '#344079',
             },
             clay: {
+              50: '#fff5f2',
               100: '#fde8e2',
               200: '#f8d5cc',
               500: '#e07a5f',
@@ -62,50 +72,228 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
   <style>
+    /* ========================================================= */
+    /* ULTRA-EXPRESSIVE & FLUID ANIMATION SYSTEM                */
+    /* ========================================================= */
+
+    /* Smooth Donut Progress */
     .donut-ring {
-      transition: stroke-dashoffset 0.5s ease;
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
       transform: rotate(-90deg);
       transform-origin: 50% 50%;
     }
 
-    @keyframes softPacketFlow {
-      0% {
-        left: 0%;
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.6);
+    /* Floating / Bobbing Animations */
+    @keyframes gentleFloat {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
       }
-      20% {
+      50% {
+        transform: translateY(-8px) rotate(1deg);
+      }
+    }
+
+    .animate-float {
+      animation: gentleFloat 4s ease-in-out infinite;
+    }
+
+    /* Breathing Ambient Glows */
+    @keyframes glowSage {
+      0%, 100% {
+        box-shadow: 0 10px 30px -10px rgba(104, 157, 121, 0.15), 0 0 0 1px rgba(199, 221, 206, 0.8);
+      }
+      50% {
+        box-shadow: 0 15px 40px -5px rgba(104, 157, 121, 0.35), 0 0 0 1px rgba(104, 157, 121, 0.6);
+      }
+    }
+
+    .agent-active-sage {
+      animation: glowSage 3s ease-in-out infinite;
+    }
+
+    @keyframes glowPeriwinkle {
+      0%, 100% {
+        box-shadow: 0 10px 30px -10px rgba(115, 134, 213, 0.15), 0 0 0 1px rgba(212, 220, 244, 0.8);
+      }
+      50% {
+        box-shadow: 0 15px 40px -5px rgba(115, 134, 213, 0.35), 0 0 0 1px rgba(115, 134, 213, 0.6);
+      }
+    }
+
+    .agent-active-periwinkle {
+      animation: glowPeriwinkle 3s ease-in-out infinite;
+    }
+
+    /* Radar / Scanner Sweep */
+    @keyframes radarSweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .animate-radar {
+      animation: radarSweep 3s linear infinite;
+    }
+
+    /* Printer Stamp / Page Bobbing */
+    @keyframes printerStamp {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-3px) scale(1.05); }
+      60% { transform: translateY(1px) scale(0.98); }
+    }
+
+    .animate-stamp {
+      animation: printerStamp 2.2s ease-in-out infinite;
+    }
+
+    /* Dynamic Multi-Particle Flow (Conduit Stream) */
+    @keyframes streamFlow {
+      0% {
+        left: -10%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.4);
+      }
+      15% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
       }
-      80% {
+      85% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
       }
       100% {
-        left: 100%;
+        left: 110%;
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.6);
+        transform: translate(-50%, -50%) scale(0.4);
       }
     }
 
-    .animate-soft-packet {
+    .conduit-particle-1 {
       position: absolute;
       top: 50%;
-      animation: softPacketFlow 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .conduit-particle-2 {
+      position: absolute;
+      top: 50%;
+      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.5s;
+    }
+
+    .conduit-particle-3 {
+      position: absolute;
+      top: 50%;
+      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite 1.0s;
+    }
+
+    /* Animated Dashed Conduit Beam */
+    @keyframes dashMove {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .animate-dash {
+      stroke-dasharray: 6 6;
+      animation: dashMove 1s linear infinite;
+    }
+
+    /* Shimmer Sheen Across Progress Bars & Badges */
+    @keyframes shimmerMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+
+    .shimmer-layer {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shimmer-layer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transform: translateX(-100%);
+      animation: shimmerMove 2.2s infinite;
+    }
+
+    /* Number Pop on Value Update */
+    @keyframes numPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.22); color: #528262; }
+      100% { transform: scale(1); }
+    }
+
+    .num-pop {
+      animation: numPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Sliding Employee Name Transition */
+    @keyframes empFadeSlide {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .emp-slide {
+      animation: empFadeSlide 0.35s ease-out;
+    }
+
+    /* Button Pulse & Spring Click */
+    .btn-spring {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-spring:active {
+      transform: scale(0.94);
+    }
+    .btn-spring:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Modal Backdrop Transitions */
+    .modal-backdrop {
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-card {
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Staggered Screen Entrances */
+    .slide-in-left {
+      animation: slideLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideLeft {
+      from { opacity: 0; transform: translateX(-35px) scale(0.96); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    .slide-in-right {
+      animation: slideRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(35px) scale(0.96); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
   </style>
 </head>
-<body class="bg-canvas text-sand-900 font-sans min-h-screen flex flex-col items-center justify-center p-6 antialiased">
+<body class="bg-canvas text-sand-900 font-sans min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 antialiased selection:bg-sage-200 selection:text-sage-900 relative overflow-x-hidden">
 
-  <!-- SCREEN 1: UPLOAD & PREFLIGHT BENTO BOX -->
+  <!-- Ambient Background Accents -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-sage-100/40 rounded-full blur-3xl pointer-events-none -z-10 animate-float"></div>
+  <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-periwinkle-100/40 rounded-full blur-3xl pointer-events-none -z-10 animate-float" style="animation-delay: -2s;"></div>
+
+  <!-- ======================================================= -->
+  <!-- SCREEN 1: UPLOAD & PREFLIGHT BENTO BOX                  -->
+  <!-- ======================================================= -->
   <div id="uploadBox" class="w-full max-w-xl transition-all duration-500 ease-out space-y-6">
 
     <!-- Alert: Previous Batch Detected in Output -->
-    <div id="existingBatchNotice" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-sm">
-          <i class="fa-solid fa-folder-open"></i>
+    <div id="existingBatchNotice" class="hidden bg-amber-50/90 border border-amber-200/80 rounded-3xl p-5 shadow-sm flex items-center justify-between gap-4 backdrop-blur-sm transition-all duration-300">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-2xl bg-amber-100/80 text-amber-800 flex items-center justify-center text-base shadow-inner">
+          <i class="fa-solid fa-folder-open animate-bounce" style="animation-duration: 2.5s;"></i>
         </div>
         <div>
           <p class="text-xs font-bold text-sand-900">Previous Batch Outputs Detected</p>
@@ -116,14 +304,14 @@
         <a 
           href="/api/download-all" 
           download 
-          class="bg-white hover:bg-amber-100 border border-amber-200 text-sand-900 font-bold text-[11px] px-3 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+          class="btn-spring bg-white hover:bg-amber-100 border border-amber-200 text-sand-900 font-bold text-[11px] px-3.5 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5"
         >
           <i class="fa-solid fa-file-zipper text-xs"></i>
           <span>Backup (.ZIP)</span>
         </a>
         <button 
           onclick="openNewBatchModal(false)" 
-          class="bg-sand-900 hover:bg-black text-white font-bold text-[11px] px-3 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+          class="btn-spring bg-sand-900 hover:bg-black text-white font-bold text-[11px] px-3.5 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5"
         >
           <i class="fa-solid fa-trash-can text-[10px]"></i>
           <span>Clear</span>
@@ -131,75 +319,89 @@
       </div>
     </div>
 
+    <!-- Drop Zone Bento Box -->
     <div 
       id="dropZone"
       onclick="document.getElementById('fileInput').click()"
-      class="bg-white border-2 border-dashed border-sand-200 hover:border-sand-300 rounded-3xl p-10 text-center cursor-pointer transition-all duration-300 hover:shadow-lg shadow-sm flex flex-col items-center justify-center gap-5"
+      class="bg-white border-2 border-dashed border-sand-200 hover:border-sage-500 rounded-3xl p-10 sm:p-12 text-center cursor-pointer transition-all duration-300 hover:shadow-xl shadow-sm flex flex-col items-center justify-center gap-6 group hover:-translate-y-1 relative overflow-hidden"
     >
-      <div class="w-16 h-16 rounded-2xl bg-sand-100 border border-sand-200 flex items-center justify-center text-sand-800 text-2xl">
+      <!-- Subtle internal shimmer on hover -->
+      <div class="absolute inset-0 bg-gradient-to-tr from-sage-50/30 via-transparent to-periwinkle-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+      <div class="w-20 h-20 rounded-3xl bg-sand-100/90 border border-sand-200/80 flex items-center justify-center text-sand-800 text-3xl shadow-inner group-hover:scale-110 group-hover:bg-sage-100 group-hover:text-sage-700 transition-all duration-300 animate-float">
         <i class="fa-solid fa-arrow-up-from-bracket"></i>
       </div>
       
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight text-sand-900">Upload Health Data (Excel / CSV)</h1>
-        <p class="text-sm text-sand-800/70 mt-1">Click to select file or drag & drop .xlsx or .csv here</p>
+      <div class="space-y-1.5 relative z-10">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-sand-900 group-hover:text-sage-800 transition-colors">
+          Upload Health Data
+        </h1>
+        <p class="text-xs sm:text-sm text-sand-800/70">
+          Click to select file or drag &amp; drop <strong class="text-sand-900 font-semibold">.xlsx</strong> or <strong class="text-sand-900 font-semibold">.csv</strong> here
+        </p>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sand-100/80 border border-sand-200 text-[11px] font-semibold text-sand-800/80 group-hover:bg-sage-50 group-hover:text-sage-800 group-hover:border-sage-200 transition-all">
+        <i class="fa-solid fa-shield-check text-sage-600"></i>
+        <span>Instant Pre-Flight Schema Verification</span>
       </div>
 
       <input type="file" id="fileInput" accept=".csv, .xlsx, .xlsm, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv" class="hidden" onchange="handleFileSelected(this.files[0])" />
     </div>
 
     <!-- Preflight Card (Appears after upload) -->
-    <div id="preflightCard" class="hidden bg-white border border-sand-200 rounded-2xl p-6 shadow-sm space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-sand-100">
-        <div class="flex items-center gap-2">
-          <span id="preflightBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200">Valid CSV</span>
-          <span id="preflightFilename" class="text-xs font-semibold text-sand-800">data.csv</span>
+    <div id="preflightCard" class="hidden bg-white border border-sand-200 rounded-3xl p-7 shadow-lg space-y-5 transition-all duration-400 transform">
+      <div class="flex items-center justify-between pb-4 border-b border-sand-100">
+        <div class="flex items-center gap-2.5">
+          <span id="preflightBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200 flex items-center gap-1.5">
+            <i class="fa-solid fa-check text-[10px]"></i>
+            <span>Valid CSV</span>
+          </span>
+          <span id="preflightFilename" class="text-xs font-bold font-mono text-sand-900">data.csv</span>
         </div>
-        <span id="preflightStats" class="text-xs font-medium text-sand-800/70">210 records | 105 cols</span>
+        <span id="preflightStats" class="text-xs font-semibold text-sand-800/70 font-mono">210 records | 105 cols</span>
       </div>
 
-      <div id="preflightErrors" class="hidden text-xs text-clay-800 bg-clay-100 border border-clay-200 p-3 rounded-xl space-y-1"></div>
+      <div id="preflightErrors" class="hidden text-xs text-clay-800 bg-clay-100/90 border border-clay-200 p-4 rounded-2xl space-y-1.5"></div>
 
-      <!-- Standard Start Action (when output/ is clean) -->
-      <div id="normalStartAction" class="flex items-center gap-3 pt-2">
+      <!-- Standard Start Action -->
+      <div id="normalStartAction" class="flex items-center gap-3 pt-1">
         <button 
           id="confirmStartBtn"
           onclick="confirmAndStartPipeline()"
-          class="flex-1 bg-sage-600 hover:bg-sage-800 text-white font-bold text-sm py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          class="btn-spring flex-1 bg-sage-600 hover:bg-sage-700 text-white font-bold text-sm py-3.5 px-6 rounded-2xl shadow-md shadow-sage-600/20 flex items-center justify-center gap-2.5 shimmer-layer"
         >
           <i class="fa-solid fa-play text-xs"></i>
-          <span>Confirm & Start Pipeline</span>
+          <span>Initialize &amp; Start Pipeline</span>
         </button>
       </div>
 
       <!-- Actions when previous batch outputs are detected -->
-      <div id="previousBatchStartActions" class="hidden space-y-3 pt-2">
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
-          <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xs mt-0.5"></i>
-          <div class="text-xs text-sand-800">
+      <div id="previousBatchStartActions" class="hidden space-y-3 pt-1">
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+          <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm mt-0.5 animate-pulse"></i>
+          <div class="text-xs text-sand-800 leading-relaxed">
             <span class="font-bold">Previous Batch Detected:</span>
             <span id="preflightBatchNoticeText">Found existing PDF reports in output/. Starting this new batch will clear them to keep records isolated.</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <!-- Option 1: Backup & Start -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button 
             type="button"
             onclick="startBatchFromCard(true)"
             id="backupAndStartCardBtn"
-            class="bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+            class="btn-spring bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2"
           >
             <i class="fa-solid fa-file-zipper text-sm"></i>
-            <span>Download Backup (.ZIP) & Start</span>
+            <span>Backup (.ZIP) &amp; Start</span>
           </button>
 
-          <!-- Option 2: Already Backed Up, Start -->
           <button 
             type="button"
             onclick="startBatchFromCard(false)"
             id="clearAndStartCardBtn"
-            class="bg-sand-100 hover:bg-clay-100 hover:text-clay-800 text-sand-800 border border-sand-200 font-bold text-xs py-3 px-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+            class="btn-spring bg-sand-100 hover:bg-clay-100 hover:text-clay-800 text-sand-800 border border-sand-200 font-bold text-xs py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2"
           >
             <i class="fa-solid fa-trash-can text-xs"></i>
             <span>Already Backed Up, Start</span>
@@ -209,228 +411,273 @@
     </div>
   </div>
 
-  <!-- SCREEN 2: THE TWO AGENTS VIEW -->
+  <!-- ======================================================= -->
+  <!-- SCREEN 2: THE TWO AGENTS VIEW                           -->
+  <!-- ======================================================= -->
   <div id="agentsView" class="w-full max-w-5xl hidden transition-all duration-500 ease-out space-y-8">
     
     <!-- Top Control Bar -->
-    <div class="flex items-center justify-between bg-white border border-sand-200 rounded-2xl px-6 py-4 shadow-sm">
-      <div class="flex items-center gap-3">
-        <div class="w-3 h-3 rounded-full bg-sage-500 animate-pulse"></div>
-        <span class="text-sm font-bold text-sand-900 tracking-tight">Pipeline Active</span>
-        <span id="globalTimer" class="text-xs font-mono bg-sand-100 text-sand-800 px-2 py-0.5 rounded-md border border-sand-200">00:00</span>
+    <div class="flex items-center justify-between bg-white border border-sand-200/80 rounded-3xl px-7 py-4.5 shadow-sm">
+      <div class="flex items-center gap-3.5">
+        <span class="relative flex h-3.5 w-3.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sage-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-sage-500 shadow-sm"></span>
+        </span>
+        <span class="text-sm font-bold text-sand-900 tracking-tight">Continuous Processing Pipeline</span>
+        <span id="globalTimer" class="text-xs font-mono font-bold bg-sand-100 text-sand-800 px-2.5 py-1 rounded-lg border border-sand-200 shadow-inner">00:00</span>
       </div>
       <div class="flex items-center gap-3">
         <button 
           onclick="stopPipeline()" 
           id="stopBtn"
-          class="text-xs font-semibold text-clay-600 hover:text-clay-800 bg-clay-100 hover:bg-clay-200 border border-clay-200 px-3 py-1.5 rounded-lg transition-all"
+          class="btn-spring text-xs font-bold text-clay-600 hover:text-clay-800 bg-clay-50 hover:bg-clay-100 border border-clay-200 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5"
         >
-          <i class="fa-solid fa-stop text-[10px] mr-1"></i> Stop
+          <i class="fa-solid fa-stop text-[10px]"></i>
+          <span>Stop</span>
         </button>
         <button 
           onclick="toggleLogDrawer()" 
-          class="text-xs font-semibold text-sand-800 bg-sand-100 hover:bg-sand-200 border border-sand-200 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+          class="btn-spring text-xs font-bold text-sand-800 bg-sand-100 hover:bg-sand-200 border border-sand-200 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5"
         >
-          <i class="fa-solid fa-terminal text-[10px]"></i> Live Logs
+          <i class="fa-solid fa-terminal text-[10px]"></i>
+          <span>Logs</span>
         </button>
       </div>
     </div>
 
-    <!-- Agent Cards Grid -->
+    <!-- Dual Agent Cards Grid -->
     <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
 
-      <!-- AGENT 1: THE ANALYZER (JSON EXTRACTOR) -->
-      <div class="bg-white border border-sage-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6">
+      <!-- ========================================= -->
+      <!-- AGENT 1: THE ANALYZER (JSON EXTRACTOR)    -->
+      <!-- ========================================= -->
+      <div id="agent1Card" class="slide-in-left bg-white border border-sage-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-sage transition-all duration-300 relative overflow-hidden group">
+        
+        <!-- Header -->
         <div class="flex items-center justify-between pb-4 border-b border-sage-100">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-sage-100 border border-sage-200 flex items-center justify-center text-sage-800 text-sm">
-              <i class="fa-solid fa-chart-simple"></i>
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-sage-100 border border-sage-200 flex items-center justify-center text-sage-800 text-lg shadow-inner relative">
+              <i class="fa-solid fa-brain"></i>
+              <div class="absolute -top-1 -right-1 w-3 h-3 bg-sage-500 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div>
-              <h2 class="text-base font-bold text-sand-900">Agent 1: The Analyzer</h2>
+              <span class="text-[10px] font-bold tracking-widest text-sage-600 uppercase font-mono">Agent 01</span>
+              <h2 class="text-base font-extrabold text-sand-900 tracking-tight">The Analyzer</h2>
             </div>
           </div>
-          <div id="agent1StatusBadge" class="flex items-center gap-2 text-xs text-sage-600 font-semibold bg-sage-50 px-3 py-1 rounded-full border border-sage-200">
-            <i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>
+          <div id="agent1StatusBadge" class="flex items-center gap-2 text-xs text-sage-700 font-bold bg-sage-50 px-3.5 py-1.5 rounded-full border border-sage-200 shadow-sm">
+            <i class="fa-solid fa-circle-notch fa-spin text-[10px] text-sage-600"></i>
             <span id="agent1Activity">Extracting</span>
           </div>
         </div>
 
-        <div class="bg-sage-50/60 border border-sage-100 rounded-2xl p-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-sage-200 flex items-center justify-center text-sage-800">
+        <!-- Current Employee Focus -->
+        <div class="bg-sage-50/70 border border-sage-200/80 rounded-2xl p-4 flex items-center justify-between shadow-inner">
+          <div class="flex items-center gap-3.5 overflow-hidden">
+            <div class="w-10 h-10 rounded-xl bg-white border border-sage-200 flex-shrink-0 flex items-center justify-center text-sage-800 shadow-sm">
               <i class="fa-regular fa-user text-sm"></i>
             </div>
             <div class="overflow-hidden">
-              <p class="text-[11px] text-sage-800/70 uppercase tracking-wider font-semibold">Current Record</p>
-              <p id="agent1Employee" class="text-sm font-bold text-sand-900 mt-0.5 truncate">Initializing...</p>
+              <p class="text-[10px] text-sage-800/70 uppercase tracking-wider font-bold">Active Record</p>
+              <p id="agent1Employee" class="text-sm font-extrabold text-sand-900 mt-0.5 truncate emp-slide">Initializing pipeline...</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-sage-50/60 border border-sage-100 rounded-2xl p-5 flex items-center justify-between">
+        <!-- Visual Progress: Done vs Left (Donut Chart) -->
+        <div class="bg-sage-50/70 border border-sage-200/80 rounded-2xl p-5 flex items-center justify-between shadow-inner">
           <div>
-            <p class="text-xs text-sage-800/70 font-medium">JSONs Ready</p>
-            <div class="flex items-baseline gap-1 mt-1">
-              <span id="agent1DoneCount" class="text-2xl font-bold text-sand-900">0</span>
-              <span id="agent1TotalCount" class="text-xs text-sage-800/70">/ 0 Records</span>
+            <p class="text-xs text-sage-800/70 font-semibold">JSON Records Ready</p>
+            <div class="flex items-baseline gap-1 mt-1.5">
+              <span id="agent1DoneCount" class="text-3xl font-extrabold font-mono text-sand-900">0</span>
+              <span id="agent1TotalCount" class="text-xs font-mono font-semibold text-sand-800/60">/ 0 Records</span>
             </div>
-            <p id="agent1LeftCount" class="text-xs text-sage-600 font-medium mt-1">0 Left</p>
+            <p id="agent1LeftCount" class="text-xs text-sage-700 font-bold mt-1">0 Left</p>
           </div>
 
-          <div class="relative w-16 h-16 flex items-center justify-center">
-            <svg class="w-16 h-16" viewBox="0 0 36 36">
-              <path class="text-sage-100" stroke-width="3.5" stroke="currentColor" fill="none"
+          <!-- Donut SVG Gauge with Spring Physics -->
+          <div class="relative w-18 h-18 flex items-center justify-center">
+            <svg class="w-18 h-18" viewBox="0 0 36 36">
+              <path class="text-sage-200/80" stroke-width="3.5" stroke="currentColor" fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path id="agent1Donut" class="donut-ring text-sage-500" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
+              <path id="agent1Donut" class="donut-ring text-sage-600" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
             </svg>
-            <span id="agent1Percent" class="absolute text-xs font-bold text-sage-800">0%</span>
+            <span id="agent1Percent" class="absolute text-xs font-extrabold font-mono text-sage-800">0%</span>
           </div>
         </div>
 
-        <div class="bg-sage-50/60 border border-sage-100 rounded-2xl p-5 space-y-2.5">
-          <div class="flex items-center justify-between text-xs text-sage-800/70">
-            <span class="font-medium">Extraction Progress</span>
+        <!-- Animated Shimmer Progress Bar -->
+        <div class="bg-sage-50/70 border border-sage-200/80 rounded-2xl p-5 space-y-3 shadow-inner">
+          <div class="flex items-center justify-between text-xs text-sage-800/80 font-bold">
+            <span>Extraction Progress</span>
+            <span id="agent1BarPercent" class="font-mono text-sage-700">0%</span>
           </div>
-          <div class="w-full bg-sage-200 rounded-full h-2 overflow-hidden">
-            <div id="agent1ProgressBar" class="bg-sage-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          <div class="w-full bg-sage-200/90 rounded-full h-3 overflow-hidden shadow-inner relative">
+            <div id="agent1ProgressBar" class="bg-gradient-to-r from-sage-500 to-sage-600 h-3 rounded-full transition-all duration-500 ease-out shimmer-layer" style="width: 0%"></div>
           </div>
         </div>
       </div>
 
-      <!-- CONNECTOR & PASSING ANIMATION -->
-      <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-8 items-center justify-center z-10 pointer-events-none">
-        <div class="w-full h-0.5 bg-sand-200"></div>
-        <div id="agentPacket" class="animate-soft-packet w-3.5 h-3.5 rounded-full bg-periwinkle-500 border-2 border-white shadow-sm"></div>
+      <!-- ========================================= -->
+      <!-- CONNECTOR & PASSING ANIMATION CONDUIT     -->
+      <!-- ========================================= -->
+      <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-10 items-center justify-center z-20 pointer-events-none">
+        
+        <!-- Track Base -->
+        <svg class="w-full h-4" viewBox="0 0 80 16">
+          <line x1="0" y1="8" x2="80" y2="8" stroke="#ded5c2" stroke-width="2" />
+          <line x1="0" y1="8" x2="80" y2="8" stroke="#7386d5" stroke-width="2" class="animate-dash" opacity="0.7" />
+        </svg>
+
+        <!-- Animated Data Beads Traveling from Agent 1 to Agent 2 -->
+        <div id="agentPacket1" class="conduit-particle-1 w-4 h-4 rounded-full bg-gradient-to-tr from-sage-500 to-periwinkle-500 border-2 border-white shadow-md"></div>
+        <div id="agentPacket2" class="conduit-particle-2 w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-sage-400 to-periwinkle-400 border-2 border-white shadow-md"></div>
+        <div id="agentPacket3" class="conduit-particle-3 w-3 h-3 rounded-full bg-periwinkle-500 border-2 border-white shadow-sm"></div>
       </div>
 
-      <!-- AGENT 2: THE PRINTER (PDF WORKER) -->
-      <div class="bg-white border border-periwinkle-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6">
+      <!-- ========================================= -->
+      <!-- AGENT 2: THE PRINTER (PDF WORKER)         -->
+      <!-- ========================================= -->
+      <div id="agent2Card" class="slide-in-right bg-white border border-periwinkle-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-periwinkle transition-all duration-300 relative overflow-hidden group">
+        
+        <!-- Header -->
         <div class="flex items-center justify-between pb-4 border-b border-periwinkle-100">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-periwinkle-100 border border-periwinkle-200 flex items-center justify-center text-periwinkle-800 text-sm">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-periwinkle-100 border border-periwinkle-200 flex items-center justify-center text-periwinkle-800 text-lg shadow-inner relative animate-stamp">
               <i class="fa-solid fa-print"></i>
+              <div class="absolute -top-1 -right-1 w-3 h-3 bg-periwinkle-500 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div>
-              <h2 class="text-base font-bold text-sand-900">Agent 2: The Printer</h2>
+              <span class="text-[10px] font-bold tracking-widest text-periwinkle-600 uppercase font-mono">Agent 02</span>
+              <h2 class="text-base font-extrabold text-sand-900 tracking-tight">The Printer</h2>
             </div>
           </div>
-          <div id="agent2StatusBadge" class="flex items-center gap-2 text-xs text-periwinkle-600 font-semibold bg-periwinkle-50 px-3 py-1 rounded-full border border-periwinkle-200">
-            <i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i>
+          <div id="agent2StatusBadge" class="flex items-center gap-2 text-xs text-periwinkle-700 font-bold bg-periwinkle-50 px-3.5 py-1.5 rounded-full border border-periwinkle-200 shadow-sm">
+            <i class="fa-solid fa-circle-notch fa-spin text-[10px] text-periwinkle-600"></i>
             <span id="agent2Activity">Rendering</span>
           </div>
         </div>
 
-        <div class="bg-periwinkle-50/60 border border-periwinkle-100 rounded-2xl p-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-periwinkle-200 flex items-center justify-center text-periwinkle-800">
+        <!-- Current PDF Focus -->
+        <div class="bg-periwinkle-50/70 border border-periwinkle-200/80 rounded-2xl p-4 flex items-center justify-between shadow-inner">
+          <div class="flex items-center gap-3.5 overflow-hidden">
+            <div class="w-10 h-10 rounded-xl bg-white border border-periwinkle-200 flex-shrink-0 flex items-center justify-center text-periwinkle-800 shadow-sm">
               <i class="fa-regular fa-file-pdf text-sm"></i>
             </div>
             <div class="overflow-hidden">
-              <p class="text-[11px] text-periwinkle-800/70 uppercase tracking-wider font-semibold">Current PDF</p>
-              <p id="agent2Employee" class="text-sm font-bold text-sand-900 mt-0.5 truncate">Waiting for queue...</p>
+              <p class="text-[10px] text-periwinkle-800/70 uppercase tracking-wider font-bold">Compiling PDF</p>
+              <p id="agent2Employee" class="text-sm font-extrabold text-sand-900 mt-0.5 truncate emp-slide">Waiting for queue...</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-periwinkle-50/60 border border-periwinkle-100 rounded-2xl p-5 flex items-center justify-between">
+        <!-- Visual Progress: Done vs Left (Donut Chart) -->
+        <div class="bg-periwinkle-50/70 border border-periwinkle-200/80 rounded-2xl p-5 flex items-center justify-between shadow-inner">
           <div>
-            <p class="text-xs text-periwinkle-800/70 font-medium">PDFs Rendered</p>
-            <div class="flex items-baseline gap-1 mt-1">
-              <span id="agent2DoneCount" class="text-2xl font-bold text-sand-900">0</span>
-              <span id="agent2TotalCount" class="text-xs text-periwinkle-800/70">/ 0 Done</span>
+            <p class="text-xs text-periwinkle-800/70 font-semibold">PDFs Rendered</p>
+            <div class="flex items-baseline gap-1 mt-1.5">
+              <span id="agent2DoneCount" class="text-3xl font-extrabold font-mono text-sand-900">0</span>
+              <span id="agent2TotalCount" class="text-xs font-mono font-semibold text-sand-800/60">/ 0 Done</span>
             </div>
-            <p id="agent2LeftCount" class="text-xs text-periwinkle-600 font-medium mt-1">0 Left</p>
+            <p id="agent2LeftCount" class="text-xs text-periwinkle-700 font-bold mt-1">0 Left</p>
           </div>
 
-          <div class="relative w-16 h-16 flex items-center justify-center">
-            <svg class="w-16 h-16" viewBox="0 0 36 36">
-              <path class="text-periwinkle-100" stroke-width="3.5" stroke="currentColor" fill="none"
+          <!-- Donut SVG Gauge with Spring Physics -->
+          <div class="relative w-18 h-18 flex items-center justify-center">
+            <svg class="w-18 h-18" viewBox="0 0 36 36">
+              <path class="text-periwinkle-200/80" stroke-width="3.5" stroke="currentColor" fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path id="agent2Donut" class="donut-ring text-periwinkle-500" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
+              <path id="agent2Donut" class="donut-ring text-periwinkle-600" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
             </svg>
-            <span id="agent2Percent" class="absolute text-xs font-bold text-periwinkle-800">0%</span>
+            <span id="agent2Percent" class="absolute text-xs font-extrabold font-mono text-periwinkle-800">0%</span>
           </div>
         </div>
 
-        <div class="bg-periwinkle-50/60 border border-periwinkle-100 rounded-2xl p-5 space-y-2.5">
-          <div class="flex items-center justify-between text-xs text-periwinkle-800/70">
-            <span class="font-medium">PDF Render Progress</span>
+        <!-- Animated Shimmer Progress Bar -->
+        <div class="bg-periwinkle-50/70 border border-periwinkle-200/80 rounded-2xl p-5 space-y-3 shadow-inner">
+          <div class="flex items-center justify-between text-xs text-periwinkle-800/80 font-bold">
+            <span>PDF Render Progress</span>
+            <span id="agent2BarPercent" class="font-mono text-periwinkle-700">0%</span>
           </div>
-          <div class="w-full bg-periwinkle-200 rounded-full h-2 overflow-hidden">
-            <div id="agent2ProgressBar" class="bg-periwinkle-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          <div class="w-full bg-periwinkle-200/90 rounded-full h-3 overflow-hidden shadow-inner relative">
+            <div id="agent2ProgressBar" class="bg-gradient-to-r from-periwinkle-500 to-periwinkle-600 h-3 rounded-full transition-all duration-500 ease-out shimmer-layer" style="width: 0%"></div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- Completed Action Bar -->
-    <div id="completedBanner" class="hidden bg-white border border-sage-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- Completed Action Bar (Celebratory) -->
+    <div id="completedBanner" class="hidden bg-white border border-sage-300 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 transform transition-all duration-500">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-2xl bg-sage-100 text-sage-600 flex items-center justify-center text-xl">
+        <div class="w-14 h-14 rounded-2xl bg-sage-100 text-sage-600 flex items-center justify-center text-2xl shadow-inner animate-bounce">
           <i class="fa-solid fa-circle-check"></i>
         </div>
         <div>
-          <h3 class="text-base font-bold text-sand-900">Pipeline Finished Successfully!</h3>
-          <p id="completionSummary" class="text-xs text-sand-800/70 mt-0.5">All 210 employee PDFs ready in output/</p>
+          <h3 class="text-lg font-extrabold text-sand-900 tracking-tight">Batch Processing Complete!</h3>
+          <p id="completionSummary" class="text-xs text-sand-800/70 mt-0.5 font-medium">All employee PDFs ready in output/</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <a 
           href="/api/download-all" 
           download 
-          class="bg-sand-100 hover:bg-sand-200 border border-sand-300 text-sand-900 font-bold text-xs px-4 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2"
+          class="btn-spring bg-sage-600 hover:bg-sage-700 text-white font-extrabold text-xs px-5 py-3.5 rounded-2xl shadow-lg shadow-sage-600/25 flex items-center gap-2 shimmer-layer"
         >
           <i class="fa-solid fa-file-zipper text-sm"></i>
           <span>Download All (.ZIP)</span>
         </a>
         <button 
           onclick="loadRecordsModal()" 
-          class="bg-sage-600 hover:bg-sage-800 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2"
+          class="btn-spring bg-sand-100 hover:bg-sand-200 text-sand-900 font-bold text-xs px-4 py-3.5 rounded-2xl shadow-sm flex items-center gap-2"
         >
           <i class="fa-solid fa-list-check"></i>
           <span>Browse Records</span>
         </button>
         <button 
           onclick="openNewBatchModal()" 
-          class="bg-sand-900 hover:bg-black text-white font-bold text-xs px-4 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2"
+          class="btn-spring bg-sand-900 hover:bg-black text-white font-bold text-xs px-4 py-3.5 rounded-2xl shadow-sm flex items-center gap-2"
         >
           <i class="fa-solid fa-arrows-rotate text-xs"></i>
-          <span>Start New Batch</span>
+          <span>New Batch</span>
         </button>
       </div>
     </div>
 
     <!-- Live Console Drawer -->
-    <div id="logDrawer" class="bg-sand-900 text-sand-100 rounded-3xl p-6 shadow-md space-y-3 hidden">
+    <div id="logDrawer" class="bg-sand-900 text-sand-100 rounded-3xl p-6 shadow-xl space-y-3 hidden transition-all duration-300">
       <div class="flex items-center justify-between border-b border-sand-800 pb-3">
-        <span class="text-xs font-mono font-bold uppercase tracking-wider text-sand-300">Live Orchestration Logs</span>
-        <button onclick="toggleLogDrawer()" class="text-xs text-sand-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-sand-300 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Live Stream Telemetry
+        </span>
+        <button onclick="toggleLogDrawer()" class="text-xs text-sand-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-sm"></i></button>
       </div>
-      <div id="logContent" class="h-44 overflow-y-auto font-mono text-xs space-y-1 pr-2 text-sand-200">
-        <div>[System] Ready.</div>
+      <div id="logContent" class="h-44 overflow-y-auto font-mono text-xs space-y-1.5 pr-2 text-sand-200">
+        <div>[System] Cluster initialized. Ready for operations.</div>
       </div>
     </div>
 
   </div>
 
-  <!-- MODAL: COMPLETED POPUP (CLEAN, MINIMAL, OPACITY BACKDROP WITHOUT BLUR) -->
-  <div id="completedModal" onclick="if(event.target === this) closeCompletedModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 transition-opacity duration-300 opacity-0">
-    <div id="completedCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-95 transition-all duration-300 ease-out space-y-6">
+  <!-- ======================================================= -->
+  <!-- MODAL: COMPLETED POPUP WITH SPRING SCALE & CELEBRATION -->
+  <!-- ======================================================= -->
+  <div id="completedModal" onclick="if(event.target === this) closeCompletedModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 modal-backdrop opacity-0">
+    <div id="completedCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-90 modal-card space-y-6">
       
-      <!-- Minimalist Check Icon -->
-      <div class="mx-auto w-16 h-16 rounded-2xl bg-sage-100 border border-sage-200 flex items-center justify-center text-sage-600 text-2xl shadow-sm">
+      <!-- Minimalist Animated Check Icon -->
+      <div class="mx-auto w-18 h-18 rounded-3xl bg-sage-100 border border-sage-200 flex items-center justify-center text-sage-600 text-3xl shadow-inner animate-float">
         <i class="fa-solid fa-check"></i>
       </div>
 
       <!-- Title & Message -->
       <div class="space-y-1.5">
-        <h2 class="text-2xl font-bold tracking-tight text-sand-900">Completed!</h2>
-        <p id="completedModalMessage" class="text-xs text-sand-800/70 leading-relaxed">
-          All employee medical forms processed with strict 4-page compliance.
+        <h2 class="text-2xl font-extrabold tracking-tight text-sand-900">Completed!</h2>
+        <p id="completedModalMessage" class="text-xs text-sand-800/70 leading-relaxed font-medium">
+          All employee medical forms processed with strict 4-page statutory compliance.
         </p>
       </div>
 
@@ -439,15 +686,15 @@
         <a 
           href="/api/download-all" 
           download 
-          class="w-full bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          class="btn-spring w-full bg-sage-600 hover:bg-sage-700 text-white font-extrabold text-xs py-4 px-4 rounded-2xl shadow-lg shadow-sage-600/20 flex items-center justify-center gap-2 shimmer-layer"
         >
-          <i class="fa-solid fa-file-zipper text-sm"></i>
+          <i class="fa-solid fa-file-zipper text-base"></i>
           <span>Download All (.ZIP)</span>
         </a>
 
         <button 
           onclick="openRecordsFromCompleted()" 
-          class="w-full bg-sage-50 hover:bg-sage-100 text-sage-800 border border-sage-200 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          class="btn-spring w-full bg-sand-100 hover:bg-sand-200 text-sand-900 border border-sand-200 font-bold text-xs py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-list-check text-xs"></i>
           <span>Browse Records</span>
@@ -455,7 +702,7 @@
 
         <button 
           onclick="openNewBatchModal()" 
-          class="w-full bg-sand-100 hover:bg-sand-200 text-sand-900 border border-sand-300 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          class="btn-spring w-full bg-sand-50 hover:bg-sand-100 text-sand-800 border border-sand-200 font-semibold text-xs py-3 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-arrows-rotate text-xs"></i>
           <span>Start New Batch</span>
@@ -472,46 +719,45 @@
     </div>
   </div>
 
-  <!-- MODAL: START NEW BATCH (DUAL CLEANUP & BACKUP MODAL) -->
-  <div id="newBatchModal" onclick="if(event.target === this) closeNewBatchModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 transition-opacity duration-300 opacity-0">
-    <div id="newBatchCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-95 transition-all duration-300 ease-out space-y-6">
+  <!-- ======================================================= -->
+  <!-- MODAL: START NEW BATCH (DUAL CLEANUP & BACKUP MODAL)    -->
+  <!-- ======================================================= -->
+  <div id="newBatchModal" onclick="if(event.target === this) closeNewBatchModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 modal-backdrop opacity-0">
+    <div id="newBatchCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-90 modal-card space-y-6">
       
-      <!-- Minimalist Refresh Icon -->
-      <div class="mx-auto w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-2xl shadow-sm">
+      <!-- Refresh Icon -->
+      <div class="mx-auto w-16 h-16 rounded-3xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-2xl shadow-inner animate-float">
         <i class="fa-solid fa-arrows-rotate"></i>
       </div>
 
       <!-- Title & Explanation -->
       <div class="space-y-1.5">
-        <h2 id="newBatchModalTitle" class="text-2xl font-bold tracking-tight text-sand-900">Start a New Batch</h2>
-        <p id="newBatchModalDesc" class="text-xs text-sand-800/70 leading-relaxed">
+        <h2 id="newBatchModalTitle" class="text-2xl font-extrabold tracking-tight text-sand-900">Start a New Batch</h2>
+        <p id="newBatchModalDesc" class="text-xs text-sand-800/70 leading-relaxed font-medium">
           Starting a new batch clears previous employee PDFs and records to ensure company datasets never mix.
         </p>
       </div>
 
       <!-- Action Options -->
       <div class="space-y-2.5 pt-2">
-        <!-- Option 1: Backup & Clear (Primary) -->
         <button 
           id="backupAndResetBtn"
           onclick="confirmNewBatch(true)" 
-          class="w-full bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          class="btn-spring w-full bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-file-zipper text-sm"></i>
-          <span id="newBatchBackupBtnText">Download Backup (.ZIP) & Clear</span>
+          <span id="newBatchBackupBtnText">Download Backup (.ZIP) &amp; Clear</span>
         </button>
 
-        <!-- Option 2: Already Backed Up, Clear -->
         <button 
           id="clearOnlyBtn"
           onclick="confirmNewBatch(false)" 
-          class="w-full bg-sand-50 hover:bg-clay-50 hover:text-clay-800 text-sand-800 border border-sand-200 hover:border-clay-200 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+          class="btn-spring w-full bg-sand-50 hover:bg-clay-50 hover:text-clay-800 text-sand-800 border border-sand-200 hover:border-clay-200 font-bold text-xs py-3 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-trash-can text-xs"></i>
           <span id="newBatchClearBtnText">Already Backed Up, Clear</span>
         </button>
 
-        <!-- Option 3: Cancel -->
         <button 
           id="newBatchCancelBtn"
           onclick="closeNewBatchModal()" 
@@ -524,27 +770,29 @@
     </div>
   </div>
 
-  <!-- MODAL: RECORDS BROWSER & DOWNLOADS -->
-  <div id="recordsModal" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 transition-opacity duration-300">
-    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-sand-200 overflow-hidden">
+  <!-- ======================================================= -->
+  <!-- MODAL: RECORDS BROWSER & DOWNLOADS                      -->
+  <!-- ======================================================= -->
+  <div id="recordsModal" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-sand-200 overflow-hidden transform transition-all">
       
       <div class="p-6 border-b border-sand-100 flex items-center justify-between">
         <div>
           <h2 class="text-lg font-bold text-sand-900">Generated Employee Records</h2>
           <p class="text-xs text-sand-800/70 mt-0.5">Direct HTML previews and print-ready PDF downloads</p>
         </div>
-        <button onclick="closeRecordsModal()" class="w-8 h-8 rounded-full bg-sand-100 hover:bg-sand-200 flex items-center justify-center text-sand-800">
+        <button onclick="closeRecordsModal()" class="w-9 h-9 rounded-full bg-sand-100 hover:bg-sand-200 flex items-center justify-center text-sand-800 transition-colors">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
 
-      <div class="px-6 py-3 border-b border-sand-100 bg-sand-50/50">
+      <div class="px-6 py-3.5 border-b border-sand-100 bg-sand-50/50">
         <input 
           type="text" 
           id="recordSearch" 
           placeholder="Search by Employee Code or Name..." 
           oninput="filterRecords(this.value)"
-          class="w-full bg-white border border-sand-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-sage-500"
+          class="w-full bg-white border border-sand-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-sage-500 shadow-inner"
         />
       </div>
 
@@ -567,7 +815,9 @@
     </div>
   </div>
 
-  <!-- CLIENT SCRIPT -->
+  <!-- ======================================================= -->
+  <!-- CLIENT LOGIC & REACTIVE ANIMATION TRIGGERS              -->
+  <!-- ======================================================= -->
   <script>
     let eventSource = null;
     let timerInterval = null;
@@ -576,6 +826,10 @@
     let completedModalShown = false;
     let existingPdfCount = 0;
     let pendingStartPipeline = false;
+
+    // Previous record counts to detect changes for pop animation
+    let lastA1Done = -1;
+    let lastA2Done = -1;
 
     window.addEventListener("DOMContentLoaded", async () => {
       try {
@@ -636,7 +890,7 @@
       } finally {
         if (cardBackupBtn) {
           cardBackupBtn.disabled = false;
-          cardBackupBtn.innerHTML = '<i class="fa-solid fa-file-zipper text-sm"></i><span>Download Backup (.ZIP) & Start</span>';
+          cardBackupBtn.innerHTML = '<i class="fa-solid fa-file-zipper text-sm"></i><span>Backup (.ZIP) & Start</span>';
         }
         if (cardClearBtn) {
           cardClearBtn.disabled = false;
@@ -649,13 +903,13 @@
     ['dragenter', 'dragover'].forEach(name => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
-        dropZone.classList.add("border-sage-500", "bg-sage-50/40");
+        dropZone.classList.add("border-sage-500", "bg-sage-50/50", "scale-[1.02]");
       });
     });
     ['dragleave', 'drop'].forEach(name => {
       dropZone.addEventListener(name, (e) => {
         e.preventDefault();
-        dropZone.classList.remove("border-sage-500", "bg-sage-50/40");
+        dropZone.classList.remove("border-sage-500", "bg-sage-50/50", "scale-[1.02]");
       });
     });
     dropZone.addEventListener('drop', (e) => {
@@ -694,14 +948,14 @@
       statsEl.textContent = `${report.total_rows} records | ${report.total_columns} columns`;
 
       if (report.valid) {
-        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200";
-        badge.textContent = "Valid CSV";
+        badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-sage-100 text-sage-800 border border-sage-200 flex items-center gap-1.5";
+        badge.innerHTML = '<i class="fa-solid fa-check text-[10px]"></i><span>Valid Dataset</span>';
         errBox.classList.add("hidden");
         btn.disabled = false;
         btn.classList.remove("opacity-50", "cursor-not-allowed");
       } else {
-        badge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-clay-100 text-clay-800 border border-clay-200";
-        badge.textContent = "Errors Detected";
+        badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-clay-100 text-clay-800 border border-clay-200 flex items-center gap-1.5";
+        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-[10px]"></i><span>Errors Detected</span>';
         errBox.classList.remove("hidden");
         errBox.innerHTML = report.errors.map(e => `<div>• ${e}</div>`).join("");
         btn.disabled = true;
@@ -735,20 +989,42 @@
       }
     }
 
+    function fireCelebrationConfetti() {
+      if (typeof confetti === 'function') {
+        const count = 180;
+        const defaults = { origin: { y: 0.7 } };
+
+        function fire(particleRatio, opts) {
+          confetti(Object.assign({}, defaults, opts, {
+            particleCount: Math.floor(count * particleRatio),
+            colors: ['#689d79', '#7386d5', '#e07a5f', '#ded5c2', '#a1c4ab']
+          }));
+        }
+
+        fire(0.25, { spread: 26, startVelocity: 55 });
+        fire(0.2, { spread: 60 });
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+        fire(0.1, { spread: 120, startVelocity: 45 });
+      }
+    }
+
     function showCompletedModal(pdfCount) {
       const modal = document.getElementById("completedModal");
       const card = document.getElementById("completedCard");
       const msg = document.getElementById("completedModalMessage");
       if (pdfCount && pdfCount > 0) {
-        msg.textContent = `All ${pdfCount} employee medical forms processed with strict 4-page compliance.`;
+        msg.textContent = `All ${pdfCount} employee medical forms processed with strict 4-page statutory compliance.`;
       }
       modal.classList.remove("hidden");
       requestAnimationFrame(() => {
         modal.classList.remove("opacity-0");
         modal.classList.add("opacity-100");
-        card.classList.remove("scale-95");
+        card.classList.remove("scale-90");
         card.classList.add("scale-100");
       });
+
+      fireCelebrationConfetti();
     }
 
     function closeCompletedModal() {
@@ -757,10 +1033,10 @@
       modal.classList.remove("opacity-100");
       modal.classList.add("opacity-0");
       card.classList.remove("scale-100");
-      card.classList.add("scale-95");
+      card.classList.add("scale-90");
       setTimeout(() => {
         modal.classList.add("hidden");
-      }, 300);
+      }, 350);
     }
 
     function openRecordsFromCompleted() {
@@ -795,7 +1071,7 @@
       requestAnimationFrame(() => {
         modal.classList.remove("opacity-0");
         modal.classList.add("opacity-100");
-        card.classList.remove("scale-95");
+        card.classList.remove("scale-90");
         card.classList.add("scale-100");
       });
     }
@@ -806,10 +1082,10 @@
       modal.classList.remove("opacity-100");
       modal.classList.add("opacity-0");
       card.classList.remove("scale-100");
-      card.classList.add("scale-95");
+      card.classList.add("scale-90");
       setTimeout(() => {
         modal.classList.add("hidden");
-      }, 300);
+      }, 350);
     }
 
     async function confirmNewBatch(downloadBackup) {
@@ -827,7 +1103,6 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        // Wait 1.2s to allow browser download stream initialization
         await new Promise(r => setTimeout(r, 1200));
       } else {
         if (clearBtn) clearBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Clearing...</span>';
@@ -872,6 +1147,8 @@
       startTime = null;
       allRecords = [];
       completedModalShown = false;
+      lastA1Done = -1;
+      lastA2Done = -1;
 
       // Close modals and banner
       document.getElementById("completedModal").classList.add("hidden");
@@ -882,7 +1159,6 @@
       // Reset badges & activity
       document.getElementById("agent1StatusBadge").innerHTML = '<i class="fa-solid fa-circle text-[8px] text-sand-400"></i><span>Waiting</span>';
       document.getElementById("agent2StatusBadge").innerHTML = '<i class="fa-solid fa-circle text-[8px] text-sand-400"></i><span>Waiting</span>';
-      document.getElementById("agentPacket").style.display = "block";
       document.getElementById("stopBtn").style.display = "flex";
       document.getElementById("globalTimer").textContent = "00:00";
       document.getElementById("agent1Employee").textContent = "Waiting for queue...";
@@ -893,6 +1169,7 @@
       document.getElementById("agent1TotalCount").textContent = "/ 0 Records";
       document.getElementById("agent1LeftCount").textContent = "0 Left";
       document.getElementById("agent1Percent").textContent = "0%";
+      document.getElementById("agent1BarPercent").textContent = "0%";
       document.getElementById("agent1ProgressBar").style.width = "0%";
       updateDonut("agent1Donut", 0);
 
@@ -900,6 +1177,7 @@
       document.getElementById("agent2TotalCount").textContent = "/ 0 Done";
       document.getElementById("agent2LeftCount").textContent = "0 Left";
       document.getElementById("agent2Percent").textContent = "0%";
+      document.getElementById("agent2BarPercent").textContent = "0%";
       document.getElementById("agent2ProgressBar").style.width = "0%";
       updateDonut("agent2Donut", 0);
 
@@ -910,9 +1188,9 @@
 
       // Reset logs
       const logBox = document.getElementById("logContent");
-      if (logBox) logBox.innerHTML = "<div>[System] Ready. Previous batch cleared.</div>";
+      if (logBox) logBox.innerHTML = "<div>[System] Cluster reset. Ready for operations.</div>";
 
-      // Transition views: hide agentsView and show uploadBox
+      // Transition views
       const uploadBox = document.getElementById("uploadBox");
       const agentsView = document.getElementById("agentsView");
 
@@ -932,7 +1210,7 @@
       const agentsView = document.getElementById("agentsView");
 
       uploadBox.style.opacity = "0";
-      uploadBox.style.transform = "scale(0.95)";
+      uploadBox.style.transform = "scale(0.94)";
 
       setTimeout(() => {
         uploadBox.classList.add("hidden");
@@ -981,6 +1259,13 @@
       };
     }
 
+    function triggerPopAnimation(element) {
+      if (!element) return;
+      element.classList.remove("num-pop");
+      void element.offsetWidth; // Trigger reflow
+      element.classList.add("num-pop");
+    }
+
     function handleProgressUpdate(st) {
       const total = st.total_records || 1;
       const jsonReady = st.json_total_ready || 0;
@@ -989,17 +1274,33 @@
       const p1 = Math.min(100, Math.round((jsonReady / total) * 100));
       const p2 = Math.min(100, Math.round((pdfReady / total) * 100));
 
-      document.getElementById("agent1DoneCount").textContent = jsonReady;
+      // Agent 1 Updates with reactive Pop Animation
+      const a1CountEl = document.getElementById("agent1DoneCount");
+      if (jsonReady !== lastA1Done) {
+        lastA1Done = jsonReady;
+        a1CountEl.textContent = jsonReady;
+        triggerPopAnimation(a1CountEl);
+      }
+      
       document.getElementById("agent1TotalCount").textContent = `/ ${total} Records`;
       document.getElementById("agent1LeftCount").textContent = `${Math.max(0, total - jsonReady)} Left`;
       document.getElementById("agent1Percent").textContent = `${p1}%`;
+      document.getElementById("agent1BarPercent").textContent = `${p1}%`;
       document.getElementById("agent1ProgressBar").style.width = `${p1}%`;
       updateDonut("agent1Donut", p1);
 
-      document.getElementById("agent2DoneCount").textContent = pdfReady;
+      // Agent 2 Updates with reactive Pop Animation
+      const a2CountEl = document.getElementById("agent2DoneCount");
+      if (pdfReady !== lastA2Done) {
+        lastA2Done = pdfReady;
+        a2CountEl.textContent = pdfReady;
+        triggerPopAnimation(a2CountEl);
+      }
+
       document.getElementById("agent2TotalCount").textContent = `/ ${total} Done`;
       document.getElementById("agent2LeftCount").textContent = `${Math.max(0, total - pdfReady)} Left`;
       document.getElementById("agent2Percent").textContent = `${p2}%`;
+      document.getElementById("agent2BarPercent").textContent = `${p2}%`;
       document.getElementById("agent2ProgressBar").style.width = `${p2}%`;
       updateDonut("agent2Donut", p2);
 
@@ -1007,7 +1308,6 @@
         clearInterval(timerInterval);
         document.getElementById("agent1StatusBadge").innerHTML = '<i class="fa-solid fa-check text-sage-600"></i><span>Done</span>';
         document.getElementById("agent2StatusBadge").innerHTML = '<i class="fa-solid fa-check text-periwinkle-600"></i><span>Done</span>';
-        document.getElementById("agentPacket").style.display = "none";
         document.getElementById("stopBtn").style.display = "none";
         
         const banner = document.getElementById("completedBanner");
@@ -1016,7 +1316,7 @@
 
         if (!completedModalShown) {
           completedModalShown = true;
-          setTimeout(() => showCompletedModal(pdfReady), 600);
+          setTimeout(() => showCompletedModal(pdfReady), 500);
         }
       }
     }
@@ -1031,15 +1331,25 @@
     function appendLog(log) {
       const box = document.getElementById("logContent");
       const div = document.createElement("div");
-      div.className = log.level === "error" ? "text-clay-500" : log.level === "warn" ? "text-sand-300" : "text-sand-200";
+      div.className = log.level === "error" ? "text-clay-500 font-semibold" : log.level === "warn" ? "text-amber-400" : "text-sand-200";
       div.textContent = `[${log.time}] [${log.level.toUpperCase()}] ${log.message}`;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
 
       if (log.message.includes("[Agent 1]")) {
-        document.getElementById("agent1Employee").textContent = log.message.replace("[Agent 1]", "").trim();
+        const nameText = log.message.replace("[Agent 1]", "").trim();
+        const emp1 = document.getElementById("agent1Employee");
+        emp1.textContent = nameText;
+        emp1.classList.remove("emp-slide");
+        void emp1.offsetWidth;
+        emp1.classList.add("emp-slide");
       } else if (log.message.includes("[Agent 2]")) {
-        document.getElementById("agent2Employee").textContent = log.message.replace("[Agent 2]", "").trim();
+        const nameText = log.message.replace("[Agent 2]", "").trim();
+        const emp2 = document.getElementById("agent2Employee");
+        emp2.textContent = nameText;
+        emp2.classList.remove("emp-slide");
+        void emp2.offsetWidth;
+        emp2.classList.add("emp-slide");
       }
     }
 
@@ -1072,18 +1382,18 @@
       const tbody = document.getElementById("recordsTableBody");
       tbody.innerHTML = records.map(r => `
         <tr class="hover:bg-sand-50/80 transition-colors">
-          <td class="py-2.5 font-mono text-sand-800/60">${r.row}</td>
-          <td class="py-2.5 font-mono font-bold text-sand-900">${r.code}</td>
-          <td class="py-2.5 font-medium text-sand-900">${r.name}</td>
-          <td class="py-2.5 text-sand-800/70">${r.designation || '-'}</td>
-          <td class="py-2.5 text-right space-x-2">
+          <td class="py-3 font-mono text-sand-800/60">${r.row}</td>
+          <td class="py-3 font-mono font-bold text-sand-900">${r.code}</td>
+          <td class="py-3 font-semibold text-sand-900">${r.name}</td>
+          <td class="py-3 text-sand-800/70">${r.designation || '-'}</td>
+          <td class="py-3 text-right space-x-2">
             ${r.json_file ? `
-              <a href="/api/preview/${r.json_file}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-semibold text-sage-600 hover:text-sage-800 bg-sage-50 hover:bg-sage-100 border border-sage-200 px-2.5 py-1 rounded-lg transition-all">
+              <a href="/api/preview/${r.json_file}" target="_blank" class="btn-spring inline-flex items-center gap-1.5 text-[11px] font-bold text-sage-700 hover:text-sage-900 bg-sage-50 hover:bg-sage-100 border border-sage-200 px-3 py-1.5 rounded-xl shadow-sm">
                 <i class="fa-solid fa-eye text-[10px]"></i> View
               </a>
             ` : ''}
             ${r.pdf_file ? `
-              <a href="/api/pdf/${r.pdf_file}" download class="inline-flex items-center gap-1 text-[11px] font-semibold text-periwinkle-600 hover:text-periwinkle-800 bg-periwinkle-50 hover:bg-periwinkle-100 border border-periwinkle-200 px-2.5 py-1 rounded-lg transition-all">
+              <a href="/api/pdf/${r.pdf_file}" download class="btn-spring inline-flex items-center gap-1.5 text-[11px] font-bold text-periwinkle-700 hover:text-periwinkle-900 bg-periwinkle-50 hover:bg-periwinkle-100 border border-periwinkle-200 px-3 py-1.5 rounded-xl shadow-sm">
                 <i class="fa-solid fa-download text-[10px]"></i> PDF
               </a>
             ` : ''}
