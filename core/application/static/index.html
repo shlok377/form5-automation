@@ -73,7 +73,7 @@
 
   <style>
     /* ========================================================= */
-    /* ANIMATIONS & FLUID MOTION SYSTEM                         */
+    /* REACTIVE SLINGSHOT & FLUID MOTION SYSTEM                 */
     /* ========================================================= */
 
     @keyframes gentleFloat {
@@ -109,45 +109,85 @@
       animation: glowPeriwinkle 3.5s ease-in-out infinite;
     }
 
-    /* Conduit Stream Flow */
-    @keyframes streamFlow {
+    /* ========================================================= */
+    /* HIGH-SPEED REACTIVE SLINGSHOT BOLT KEYFRAMES             */
+    /* ========================================================= */
+
+    @keyframes slingshotBolt {
       0% {
-        left: -10%;
+        left: 0%;
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.4);
+        transform: translate(-50%, -50%) scale(0.3, 0.3);
+        filter: blur(2px);
       }
-      15% {
+      12% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(3.2, 0.65);
+        filter: blur(0px);
       }
       85% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(3.2, 0.65);
+        filter: blur(0px);
       }
       100% {
-        left: 110%;
+        left: 100%;
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.4);
+        transform: translate(-50%, -50%) scale(0.4, 0.4);
+        filter: blur(1px);
       }
     }
-    .conduit-particle-1 {
+
+    .slingshot-projectile {
       position: absolute;
       top: 50%;
-      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    }
-    .conduit-particle-2 {
-      position: absolute;
-      top: 50%;
-      animation: streamFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.55s;
+      height: 7px;
+      width: 22px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, rgba(104, 157, 121, 0.2), #689d79 35%, #7386d5 80%, #ffffff 100%);
+      box-shadow: 0 0 14px rgba(115, 134, 213, 0.9), 0 0 22px rgba(104, 157, 121, 0.6);
+      animation: slingshotBolt 0.32s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+      pointer-events: none;
+      z-index: 30;
     }
 
-    @keyframes dashMove {
-      from { stroke-dashoffset: 24; }
-      to { stroke-dashoffset: 0; }
+    /* Muzzle Egress Flash */
+    @keyframes muzzleFlashAnim {
+      0% { transform: scale(0.6); opacity: 1; }
+      50% { transform: scale(1.9); opacity: 0.8; }
+      100% { transform: scale(2.4); opacity: 0; }
     }
-    .animate-dash {
-      stroke-dasharray: 6 6;
-      animation: dashMove 1s linear infinite;
+    .muzzle-flash {
+      animation: muzzleFlashAnim 0.24s ease-out forwards;
+    }
+
+    /* Intake Impact Shockwave */
+    @keyframes intakeImpactAnim {
+      0% { transform: scale(0.6); opacity: 1; }
+      50% { transform: scale(2.2); opacity: 0.9; }
+      100% { transform: scale(3.0); opacity: 0; }
+    }
+    .intake-shockwave {
+      animation: intakeImpactAnim 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Agent 2 Card Physical Recoil */
+    @keyframes cardRecoilAnim {
+      0% { transform: translateX(0) scale(1); }
+      30% { transform: translateX(3px) scale(1.008); }
+      100% { transform: translateX(0) scale(1); }
+    }
+    .card-recoil {
+      animation: cardRecoilAnim 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Track Pulse Beam */
+    @keyframes trackPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.85; }
+    }
+    .animate-track-pulse {
+      animation: trackPulse 2s ease-in-out infinite;
     }
 
     /* Shimmer Light Sheen */
@@ -392,7 +432,7 @@
       <!-- ========================================= -->
       <!-- AGENT 1: THE ANALYZER                     -->
       <!-- ========================================= -->
-      <div id="agent1Card" class="slide-in-left bg-white border border-sage-200 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-sage transition-all duration-300">
+      <div id="agent1Card" class="slide-in-left bg-white border border-sage-200 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-sage transition-all duration-300 relative">
         
         <!-- Header -->
         <div class="flex items-center justify-between pb-4 border-b border-sage-100">
@@ -442,24 +482,34 @@
       </div>
 
       <!-- ========================================= -->
-      <!-- CONNECTOR & PASSING ANIMATION CONDUIT     -->
+      <!-- CONNECTOR & REACTIVE SLINGSHOT CONDUIT   -->
       <!-- ========================================= -->
-      <div class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-10 items-center justify-center z-20 pointer-events-none">
-        <!-- Track Base -->
-        <svg class="w-full h-4" viewBox="0 0 80 16">
-          <line x1="0" y1="8" x2="80" y2="8" stroke="#ded5c2" stroke-width="2" />
-          <line x1="0" y1="8" x2="80" y2="8" stroke="#7386d5" stroke-width="2" class="animate-dash" opacity="0.7" />
+      <div id="conduitTrackContainer" class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-10 items-center justify-center z-20 pointer-events-none">
+        
+        <!-- Track Base SVG -->
+        <svg class="w-full h-4 relative" viewBox="0 0 80 16">
+          <line x1="6" y1="8" x2="74" y2="8" stroke="#ded5c2" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="6" y1="8" x2="74" y2="8" stroke="#a1c4ab" stroke-width="2" stroke-linecap="round" class="animate-track-pulse" />
         </svg>
 
-        <!-- Animated Data Beads Traveling from Agent 1 to Agent 2 -->
-        <div id="agentPacket1" class="conduit-particle-1 w-4 h-4 rounded-full bg-gradient-to-tr from-sage-500 to-periwinkle-500 border-2 border-white shadow-md"></div>
-        <div id="agentPacket2" class="conduit-particle-2 w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-sage-400 to-periwinkle-400 border-2 border-white shadow-md"></div>
+        <!-- Egress Port (Muzzle Flash Target) -->
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-sage-500 border-2 border-white shadow-sm flex items-center justify-center">
+          <div id="muzzleFlashRing" class="absolute w-4 h-4 rounded-full bg-sage-400/80 pointer-events-none opacity-0"></div>
+        </div>
+
+        <!-- Intake Port (Impact Shockwave Target) -->
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-periwinkle-500 border-2 border-white shadow-sm flex items-center justify-center">
+          <div id="intakeShockwaveRing" class="absolute w-4 h-4 rounded-full bg-periwinkle-400/80 pointer-events-none opacity-0"></div>
+        </div>
+
+        <!-- Dynamic Projectile Container -->
+        <div id="slingshotFlightDeck" class="absolute inset-0 flex items-center"></div>
       </div>
 
       <!-- ========================================= -->
       <!-- AGENT 2: THE PRINTER                      -->
       <!-- ========================================= -->
-      <div id="agent2Card" class="slide-in-right bg-white border border-periwinkle-200 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-periwinkle transition-all duration-300">
+      <div id="agent2Card" class="slide-in-right bg-white border border-periwinkle-200 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-sm space-y-6 agent-active-periwinkle transition-all duration-300 relative">
         
         <!-- Header -->
         <div class="flex items-center justify-between pb-4 border-b border-periwinkle-100">
@@ -711,7 +761,7 @@
   </div>
 
   <!-- ======================================================= -->
-  <!-- CLIENT LOGIC                                            -->
+  <!-- CLIENT LOGIC & REACTIVE EVENT SLINGSHOT                 -->
   <!-- ======================================================= -->
   <script>
     let eventSource = null;
@@ -734,6 +784,58 @@
         console.warn("Status check failed", e);
       }
     });
+
+    // =======================================================
+    // REACTIVE SLINGSHOT FIRE ENGINE
+    // =======================================================
+    function fireReactiveSlingshot(count = 1) {
+      const flightDeck = document.getElementById("slingshotFlightDeck");
+      const muzzle = document.getElementById("muzzleFlashRing");
+      const shockwave = document.getElementById("intakeShockwaveRing");
+      const agent2Card = document.getElementById("agent2Card");
+
+      if (!flightDeck) return;
+
+      const safeCount = Math.min(Math.max(1, count), 4);
+
+      for (let i = 0; i < safeCount; i++) {
+        setTimeout(() => {
+          // 1. Muzzle Flash at Agent 1 Egress
+          if (muzzle) {
+            muzzle.classList.remove("muzzle-flash");
+            void muzzle.offsetWidth;
+            muzzle.classList.add("muzzle-flash");
+          }
+
+          // 2. Spawn Slingshot Projectile Bolt
+          const bolt = document.createElement("div");
+          bolt.className = "slingshot-projectile";
+          flightDeck.appendChild(bolt);
+
+          // 3. Trigger Impact Shockwave on arrival (at ~260ms)
+          setTimeout(() => {
+            if (shockwave) {
+              shockwave.classList.remove("intake-shockwave");
+              void shockwave.offsetWidth;
+              shockwave.classList.add("intake-shockwave");
+            }
+            if (agent2Card) {
+              agent2Card.classList.remove("card-recoil");
+              void agent2Card.offsetWidth;
+              agent2Card.classList.add("card-recoil");
+            }
+          }, 260);
+
+          // 4. Remove bolt after flight finishes
+          setTimeout(() => {
+            if (bolt && bolt.parentNode) {
+              bolt.parentNode.removeChild(bolt);
+            }
+          }, 360);
+
+        }, i * 75);
+      }
+    }
 
     function updateExistingBatchNotice(count) {
       existingPdfCount = count || 0;
@@ -1069,6 +1171,10 @@
       document.getElementById("agent2Percent").textContent = "0%";
       document.getElementById("agent2ProgressFill").style.width = "0%";
 
+      // Reset flight deck
+      const flightDeck = document.getElementById("slingshotFlightDeck");
+      if (flightDeck) flightDeck.innerHTML = "";
+
       // Reset file input & preflight
       const fileInput = document.getElementById("fileInput");
       if (fileInput) fileInput.value = "";
@@ -1150,7 +1256,7 @@
     function triggerPopAnimation(element) {
       if (!element) return;
       element.classList.remove("num-pop");
-      void element.offsetWidth; // Trigger reflow
+      void element.offsetWidth;
       element.classList.add("num-pop");
     }
 
@@ -1162,9 +1268,13 @@
       const p1 = Math.min(100, Math.round((jsonReady / total) * 100));
       const p2 = Math.min(100, Math.round((pdfReady / total) * 100));
 
-      // Agent 1 Updates
+      // Agent 1 Updates & Event Slingshot Trigger
       const a1CountEl = document.getElementById("agent1DoneCount");
       if (jsonReady !== lastA1Done) {
+        if (lastA1Done >= 0 && jsonReady > lastA1Done) {
+          const delta = jsonReady - lastA1Done;
+          fireReactiveSlingshot(delta);
+        }
         lastA1Done = jsonReady;
         a1CountEl.textContent = jsonReady;
         triggerPopAnimation(a1CountEl);
