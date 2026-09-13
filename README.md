@@ -26,8 +26,8 @@
 Open **http://localhost:8080** in any browser.
 
 **Features in Web Dashboard**:
-- **Drag & Drop CSV Upload**: Immediate pre-flight validation of column count, headers, and mapping indices.
-- **One-Click Run on Existing Data**: Process `data/data.csv` instantly.
+- **Drag & Drop Excel (.xlsx) & CSV Upload**: Automatic in-memory conversion of Excel spreadsheets into clean, normalized CSVs with instant pre-flight validation.
+- **One-Click Run on Existing Data**: Process `data/data.csv` (or `data/data.xlsx`) instantly.
 - **Two-Agent Live Monitoring**: Real-time pastel donut charts and status indicators via Server-Sent Events (SSE).
 - **Live Logs Drawer**: Inspect real-time worker logs directly from the browser.
 - **Interactive Records Browser**: Search employee records, open instant HTML previews, and download individual PDFs.

@@ -28,6 +28,7 @@ from generate_json import (
     build_employee_json,
 )
 from generate_pdfs import find_chromium, build_filled_html
+from excel_adapter import convert_xlsx_to_csv, is_excel_file
 
 
 class PipelineManager:
@@ -169,11 +170,24 @@ class PipelineManager:
         self.log(f"Starting pipeline (force={force}, workers={num_workers})...")
         
         if not os.path.exists(self.data_csv):
-            self.log(f"Error: CSV file not found at {self.data_csv}", level="error")
-            with self.lock:
-                self.state = "error"
-            self.emit_progress()
-            return
+            xlsx_alt = os.path.join(self.base_dir, "data", "data.xlsx")
+            if os.path.exists(xlsx_alt):
+                self.log(f"Detected {xlsx_alt}. Auto-converting to CSV...")
+                try:
+                    convert_xlsx_to_csv(xlsx_alt, self.data_csv)
+                    self.log(f"Successfully converted Excel to {self.data_csv}")
+                except Exception as e:
+                    self.log(f"Failed to convert Excel to CSV: {e}", level="error")
+                    with self.lock:
+                        self.state = "error"
+                    self.emit_progress()
+                    return
+            else:
+                self.log(f"Error: Data file not found at {self.data_csv} (nor data.xlsx)", level="error")
+                with self.lock:
+                    self.state = "error"
+                self.emit_progress()
+                return
 
         if not self.chromium_path:
             self.log("Error: Chromium browser not found.", level="error")

@@ -22,6 +22,7 @@ from aiohttp import web
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from validator import validate_csv_content, validate_csv_file
 from pipeline import PipelineManager, build_filled_html
+from excel_adapter import convert_xlsx_to_csv, is_excel_file
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -53,8 +54,10 @@ async def handle_preflight_upload(request):
         return web.json_response({"valid": False, "errors": ["No file uploaded with key 'file'."]}, status=400)
 
     filename = field.filename or "uploaded.csv"
-    if not filename.lower().endswith(".csv"):
-        return web.json_response({"valid": False, "errors": ["Uploaded file must be a .csv file."]}, status=400)
+    is_xlsx = is_excel_file(filename)
+    is_csv = filename.lower().endswith(".csv")
+    if not (is_csv or is_xlsx):
+        return web.json_response({"valid": False, "errors": ["Uploaded file must be a .csv or .xlsx file."]}, status=400)
 
     content_bytes = bytearray()
     while True:
@@ -63,17 +66,27 @@ async def handle_preflight_upload(request):
             break
         content_bytes.extend(chunk)
 
-    csv_text = content_bytes.decode("utf-8", errors="replace")
+    if is_xlsx:
+        try:
+            csv_text = convert_xlsx_to_csv(bytes(content_bytes))
+        except Exception as e:
+            return web.json_response({
+                "valid": False,
+                "errors": [f"Failed to convert Excel (.xlsx) file to CSV: {str(e)}"]
+            }, status=400)
+    else:
+        csv_text = content_bytes.decode("utf-8-sig", errors="replace")
 
-    # Save to pending temp file
+    # Save to pending temp file (as canonical CSV)
     os.makedirs(DATA_DIR, exist_ok=True)
-    with open(TEMP_UPLOAD_PATH, "w", encoding="utf-8") as f:
+    with open(TEMP_UPLOAD_PATH, "w", encoding="utf-8-sig", newline="") as f:
         f.write(csv_text)
 
-    # Validate
+    # Validate normalized CSV
     report = validate_csv_content(csv_text, MAPPING_CONFIG)
     report["filename"] = filename
     report["file_size"] = len(content_bytes)
+    report["converted_from_xlsx"] = is_xlsx
     return web.json_response(report)
 
 async def handle_confirm_csv(request):

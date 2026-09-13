@@ -246,8 +246,20 @@ def main():
     output_dir = os.path.join(base_dir, "temp_json")
 
     if not os.path.exists(csv_path):
-        print(f"Error: CSV file not found at {csv_path}", file=sys.stderr)
-        sys.exit(1)
+        xlsx_path = os.path.join(base_dir, "data", "data.xlsx")
+        if os.path.exists(xlsx_path):
+            try:
+                sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+                from excel_adapter import convert_xlsx_to_csv
+                print(f"Detected {xlsx_path}. Auto-converting to {csv_path}...")
+                convert_xlsx_to_csv(xlsx_path, csv_path)
+                print(f"Successfully converted Excel file to {csv_path}")
+            except Exception as e:
+                print(f"Error converting {xlsx_path} to CSV: {e}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            print(f"Error: CSV file not found at {csv_path}", file=sys.stderr)
+            sys.exit(1)
 
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
