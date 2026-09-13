@@ -331,6 +331,13 @@
           <i class="fa-solid fa-list-check"></i>
           <span>Browse Records</span>
         </button>
+        <button 
+          onclick="openNewBatchModal()" 
+          class="bg-sand-900 hover:bg-black text-white font-bold text-xs px-4 py-3 rounded-xl transition-all shadow-sm flex items-center gap-2"
+        >
+          <i class="fa-solid fa-arrows-rotate text-xs"></i>
+          <span>Start New Batch</span>
+        </button>
       </div>
     </div>
 
@@ -384,10 +391,69 @@
         </button>
 
         <button 
+          onclick="openNewBatchModal()" 
+          class="w-full bg-sand-100 hover:bg-sand-200 text-sand-900 border border-sand-300 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-arrows-rotate text-xs"></i>
+          <span>Start New Batch</span>
+        </button>
+
+        <button 
           onclick="closeCompletedModal()" 
           class="w-full text-sand-800/50 hover:text-sand-900 font-semibold text-xs py-1.5 transition-colors"
         >
           Dismiss
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: START NEW BATCH (DUAL CLEANUP & BACKUP MODAL) -->
+  <div id="newBatchModal" onclick="if(event.target === this) closeNewBatchModal()" class="hidden fixed inset-0 bg-sand-900/60 z-50 flex items-center justify-center p-6 transition-opacity duration-300 opacity-0">
+    <div id="newBatchCard" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200 text-center transform scale-95 transition-all duration-300 ease-out space-y-6">
+      
+      <!-- Minimalist Refresh Icon -->
+      <div class="mx-auto w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-2xl shadow-sm">
+        <i class="fa-solid fa-arrows-rotate"></i>
+      </div>
+
+      <!-- Title & Explanation -->
+      <div class="space-y-1.5">
+        <h2 class="text-2xl font-bold tracking-tight text-sand-900">Start a New Batch</h2>
+        <p class="text-xs text-sand-800/70 leading-relaxed">
+          Starting a new batch clears previous employee PDFs and records to ensure company datasets never mix.
+        </p>
+      </div>
+
+      <!-- Action Options -->
+      <div class="space-y-2.5 pt-2">
+        <!-- Option 1: Backup & Clear (Primary) -->
+        <button 
+          id="backupAndResetBtn"
+          onclick="confirmNewBatch(true)" 
+          class="w-full bg-sand-900 hover:bg-black text-white font-bold text-xs py-3.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-file-zipper text-sm"></i>
+          <span>Download Backup (.ZIP) & Clear</span>
+        </button>
+
+        <!-- Option 2: Clear without backup -->
+        <button 
+          id="clearOnlyBtn"
+          onclick="confirmNewBatch(false)" 
+          class="w-full bg-sand-50 hover:bg-clay-50 hover:text-clay-800 text-sand-800 border border-sand-200 hover:border-clay-200 font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-trash-can text-xs"></i>
+          <span>Clear Without Backup</span>
+        </button>
+
+        <!-- Option 3: Cancel -->
+        <button 
+          onclick="closeNewBatchModal()" 
+          class="w-full text-sand-800/50 hover:text-sand-900 font-semibold text-xs py-1.5 transition-colors"
+        >
+          Cancel (Keep Records)
         </button>
       </div>
 
@@ -554,6 +620,136 @@
     function openRecordsFromCompleted() {
       closeCompletedModal();
       loadRecordsModal();
+    }
+
+    function openNewBatchModal() {
+      closeCompletedModal();
+      const modal = document.getElementById("newBatchModal");
+      const card = document.getElementById("newBatchCard");
+      modal.classList.remove("hidden");
+      requestAnimationFrame(() => {
+        modal.classList.remove("opacity-0");
+        modal.classList.add("opacity-100");
+        card.classList.remove("scale-95");
+        card.classList.add("scale-100");
+      });
+    }
+
+    function closeNewBatchModal() {
+      const modal = document.getElementById("newBatchModal");
+      const card = document.getElementById("newBatchCard");
+      modal.classList.remove("opacity-100");
+      modal.classList.add("opacity-0");
+      card.classList.remove("scale-100");
+      card.classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 300);
+    }
+
+    async function confirmNewBatch(downloadBackup) {
+      const backupBtn = document.getElementById("backupAndResetBtn");
+      const clearBtn = document.getElementById("clearOnlyBtn");
+      
+      backupBtn.disabled = true;
+      clearBtn.disabled = true;
+      
+      if (downloadBackup) {
+        backupBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i><span>Downloading Backup...</span>';
+        const a = document.createElement("a");
+        a.href = "/api/download-all";
+        a.download = "FORM-5_Batch_Reports.zip";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Wait 1.2s to allow browser download stream initialization
+        await new Promise(r => setTimeout(r, 1200));
+      } else {
+        clearBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Clearing...</span>';
+      }
+
+      try {
+        const res = await fetch("/api/workspace/reset", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          closeNewBatchModal();
+          resetUIState();
+        } else {
+          alert("Could not reset workspace: " + (data.message || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Error during workspace reset: " + err.message);
+      } finally {
+        backupBtn.disabled = false;
+        clearBtn.disabled = false;
+        backupBtn.innerHTML = '<i class="fa-solid fa-file-zipper text-sm"></i><span>Download Backup (.ZIP) & Clear</span>';
+        clearBtn.innerHTML = '<i class="fa-solid fa-trash-can text-xs"></i><span>Clear Without Backup</span>';
+      }
+    }
+
+    function resetUIState() {
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+      clearInterval(timerInterval);
+      timerInterval = null;
+      startTime = null;
+      allRecords = [];
+      completedModalShown = false;
+
+      // Close modals and banner
+      document.getElementById("completedModal").classList.add("hidden");
+      document.getElementById("newBatchModal").classList.add("hidden");
+      document.getElementById("recordsModal").classList.add("hidden");
+      document.getElementById("completedBanner").classList.add("hidden");
+
+      // Reset badges & activity
+      document.getElementById("agent1StatusBadge").innerHTML = '<i class="fa-solid fa-circle text-[8px] text-sand-400"></i><span>Waiting</span>';
+      document.getElementById("agent2StatusBadge").innerHTML = '<i class="fa-solid fa-circle text-[8px] text-sand-400"></i><span>Waiting</span>';
+      document.getElementById("agentPacket").style.display = "block";
+      document.getElementById("stopBtn").style.display = "flex";
+      document.getElementById("globalTimer").textContent = "00:00";
+      document.getElementById("agent1Employee").textContent = "Waiting for queue...";
+      document.getElementById("agent2Employee").textContent = "Waiting for queue...";
+
+      // Reset progress counters & meters
+      document.getElementById("agent1DoneCount").textContent = "0";
+      document.getElementById("agent1TotalCount").textContent = "/ 0 Records";
+      document.getElementById("agent1LeftCount").textContent = "0 Left";
+      document.getElementById("agent1Percent").textContent = "0%";
+      document.getElementById("agent1ProgressBar").style.width = "0%";
+      updateDonut("agent1Donut", 0);
+
+      document.getElementById("agent2DoneCount").textContent = "0";
+      document.getElementById("agent2TotalCount").textContent = "/ 0 Done";
+      document.getElementById("agent2LeftCount").textContent = "0 Left";
+      document.getElementById("agent2Percent").textContent = "0%";
+      document.getElementById("agent2ProgressBar").style.width = "0%";
+      updateDonut("agent2Donut", 0);
+
+      // Reset file input & preflight
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput) fileInput.value = "";
+      document.getElementById("preflightCard").classList.add("hidden");
+
+      // Reset logs
+      const logBox = document.getElementById("logContent");
+      if (logBox) logBox.innerHTML = "<div>[System] Ready. Previous batch cleared.</div>";
+
+      // Transition views: hide agentsView and show uploadBox
+      const uploadBox = document.getElementById("uploadBox");
+      const agentsView = document.getElementById("agentsView");
+
+      agentsView.style.opacity = "0";
+      setTimeout(() => {
+        agentsView.classList.add("hidden");
+        uploadBox.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          uploadBox.style.opacity = "1";
+          uploadBox.style.transform = "scale(1)";
+        });
+      }, 300);
     }
 
     async function startPipelineExecution(force = false) {

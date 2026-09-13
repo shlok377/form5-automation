@@ -155,6 +155,56 @@ class PipelineManager:
                 "recent_logs": list(self.recent_logs[-30:])
             }
 
+    def reset(self):
+        """
+        Cleans up generated batch outputs (PDFs, ZIPs, and intermediate JSON cache).
+        GUARANTEED NEVER to delete mapping_config.json, code files, or .gitkeep.
+        """
+        PROTECTED_NAMES = {"mapping_config.json", ".gitkeep"}
+
+        with self.lock:
+            # 1. Purge only generated PDFs, ZIPs, and tmp files in output_dir
+            if os.path.exists(self.output_dir):
+                for fname in os.listdir(self.output_dir):
+                    if fname in PROTECTED_NAMES:
+                        continue
+                    if fname.endswith((".pdf", ".zip", ".tmp")) or fname.startswith(".all_reports"):
+                        try:
+                            os.remove(os.path.join(self.output_dir, fname))
+                        except Exception as e:
+                            self.log(f"Warning removing {fname}: {e}", level="warn")
+
+            # 2. Purge only generated employee JSON files and tmp files in temp_json_dir
+            if os.path.exists(self.temp_json_dir):
+                for fname in os.listdir(self.temp_json_dir):
+                    if fname in PROTECTED_NAMES or fname == "mapping_config.json":
+                        continue
+                    if fname.endswith((".json", ".tmp")):
+                        try:
+                            os.remove(os.path.join(self.temp_json_dir, fname))
+                        except Exception as e:
+                            self.log(f"Warning removing {fname}: {e}", level="warn")
+
+            # 3. Reset in-memory tracking state
+            self.state = "idle"
+            self.total_records = 0
+            self.json_generated = 0
+            self.json_skipped = 0
+            self.pdf_generated = 0
+            self.pdf_skipped = 0
+            self.failed_records = []
+            self.recent_logs = []
+            while not self.work_queue.empty():
+                try:
+                    self.work_queue.get_nowait()
+                except Exception:
+                    break
+            self.stop_requested = False
+
+            # 4. Notify listeners of clean state
+            self.emit_progress()
+            return True
+
     def start(self, force=False, num_workers=4):
         with self.lock:
             if self.state == "running":

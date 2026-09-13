@@ -235,7 +235,21 @@ async def handle_sse_events(request):
     finally:
         pipeline_manager.remove_listener(listener)
 
-    return response
+async def handle_workspace_reset(request):
+    """
+    Purges current batch outputs and resets pipeline to clean state.
+    Guaranteed never to touch configuration files or .gitkeep.
+    """
+    success = pipeline_manager.reset()
+    if os.path.exists(TEMP_UPLOAD_PATH):
+        try:
+            os.remove(TEMP_UPLOAD_PATH)
+        except Exception:
+            pass
+    return web.json_response({
+        "success": success,
+        "message": "Workspace reset successfully."
+    })
 
 def create_app():
     app = web.Application()
@@ -250,6 +264,7 @@ def create_app():
     app.router.add_get("/api/preview/{filename}", handle_preview_html)
     app.router.add_get("/api/pdf/{filename}", handle_download_pdf)
     app.router.add_get("/api/download-all", handle_download_all_zip)
+    app.router.add_post("/api/workspace/reset", handle_workspace_reset)
     app.router.add_static("/static", STATIC_DIR)
     return app
 
