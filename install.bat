@@ -74,11 +74,24 @@ if not exist "temp_json" mkdir temp_json
 if not exist "output" mkdir output
 
 echo.
-echo =================================================================
-echo    Setup completed successfully!
+echo ---------------------------------------------------------------
+echo   Installation Complete!
+echo ---------------------------------------------------------------
 echo.
-echo    To launch the Web Dashboard:
-echo    Double-click on "run.bat"
-echo =================================================================
+echo   HOW TO LAUNCH:
+echo.
+echo   1. Desktop / File Explorer (Easiest):
+echo      Double-click "run.bat" in this folder.
+echo.
+echo   2. Command Prompt / PowerShell:
+echo      run.bat
+echo.
+echo   The dashboard will open automatically in your default browser.
+echo.
+echo   -------------------------------------------------------------
+echo   Secondary Options (Headless / Scripting):
+echo   * Batch process without UI:  run.bat --cli
+echo   * View current queue status: run.bat --status
+echo ---------------------------------------------------------------
 echo.
 pause
